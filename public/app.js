@@ -266,7 +266,7 @@
     $('#profil-nom').textContent = moi.nom || moi.identifiant;
     $('#profil-role').textContent = `${ROLES[moi.role]} · ${moi.identifiant}`;
     construireMenu();
-    afficher(vueAccueil());
+    afficher('tableau');
     clearInterval(minuteur);
     // Rafraîchissement régulier pour voir le travail des collègues
     minuteur = setInterval(() => {
@@ -278,19 +278,14 @@
    * Navigation
    * ------------------------------------------------------------------ */
   function construireMenu() {
-    const items = Object.entries(ENTITES).map(([k, e]) => [k, e.titre]);
-    // Le tableau de bord est réservé à l'administrateur
-    if (moi.role === 'admin') items.unshift(['tableau', 'Tableau de bord']);
+    const items = [['tableau', 'Tableau de bord'], ...Object.entries(ENTITES).map(([k, e]) => [k, e.titre])];
     let html = items.map(([k, l]) => `<button data-vue="${k}">${esc(l)}</button>`).join('');
     if (moi.role === 'admin') html += '<div class="sep"></div><button data-vue="utilisateurs">Utilisateurs</button>';
     $('#menu').innerHTML = html;
     $$('#menu button').forEach((b) => (b.onclick = () => { $('.barre').classList.remove('ouverte'); afficher(b.dataset.vue); }));
   }
 
-  const vueAccueil = () => (moi.role === 'admin' ? 'tableau' : 'ventes');
-
   async function afficher(vue, silencieux = false) {
-    if (vue === 'tableau' && moi.role !== 'admin') vue = 'ventes';
     vueActive = vue;
     $$('#menu button').forEach((b) => b.classList.toggle('actif', b.dataset.vue === vue));
     try {
