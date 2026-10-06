@@ -663,7 +663,53 @@
   /* ------------------------------------------------------------------
    * Démarrage
    * ------------------------------------------------------------------ */
+  /* ------------------------------------------------------------------
+   * Annonce d'ouverture (image de la cave pendant quelques secondes)
+   * ------------------------------------------------------------------ */
+  function afficherPub() {
+    const pub = CFG.pub;
+    if (!pub || pub.active === false) return;
+    if (pub.uneFoisParSession) {
+      try { if (sessionStorage.getItem('pubVue')) return; sessionStorage.setItem('pubVue', '1'); } catch { /* stockage indisponible */ }
+    }
+    const duree = Math.max(1, Number(pub.duree) || 10);
+    const zone = $('#pub');
+    const img = $('#pub-image');
+    zone.classList.add('sans-image');           // visuel de secours tant que la photo n'est pas chargée
+    img.onload = () => zone.classList.remove('sans-image');
+    img.onerror = () => { img.hidden = true; };
+    if (pub.image) img.src = pub.image; else img.hidden = true;
+    img.alt = `${CFG.nomEntreprise || 'La cave'}`;
+    $('#pub-slogan').textContent = pub.slogan || '';
+    zone.hidden = false;
+    document.body.classList.add('pub-ouverte');
+
+    const debut = performance.now();
+    const barre = $('#pub-progression');
+    let fini = false;
+    const fermer = () => {
+      if (fini) return;
+      fini = true;
+      zone.classList.add('pub-sortie');
+      setTimeout(() => { zone.hidden = true; document.body.classList.remove('pub-ouverte'); }, 400);
+    };
+    const tic = () => {
+      if (fini) return;
+      const ecoule = (performance.now() - debut) / 1000;
+      $('#pub-secondes').textContent = Math.max(0, Math.ceil(duree - ecoule));
+      barre.style.width = `${Math.min(100, (ecoule / duree) * 100)}%`;
+      if (ecoule >= duree) fermer(); else requestAnimationFrame(tic);
+    };
+    requestAnimationFrame(tic);
+    if (pub.passable) {
+      const b = $('#pub-passer');
+      b.hidden = false;
+      b.onclick = fermer;
+    }
+  }
+
   function init() {
+    afficherPub();
     if (CFG.nomEntreprise) {
       document.title = `${CFG.nomEntreprise} – Gestion commerciale`;
       $$('.nom-entreprise').forEach((el) => (el.textContent = CFG.nomEntreprise));
