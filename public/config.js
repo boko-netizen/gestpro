@@ -11,4 +11,16 @@ window.GESTPRO_CONFIG = {
   // « awa@gestpro.local ».
   loginDomain: "gestpro.local",
   nomEntreprise: "MA CAVE",
+
+  // Annonce affichée à l'ouverture du site.
+  // Déposez la photo de votre cave dans public/img/ sous le nom cave.jpg
+  // (ou changez le nom ci-dessous). Mettez active: false pour la désactiver.
+  pub: {
+    active: true,
+    image: "img/cave.jpg",
+    duree: 10,                 // en secondes
+    slogan: "Vins & spiritueux de qualité",
+    passable: false,           // true = bouton « Passer » visible
+    uneFoisParSession: true,   // true = une seule fois tant que l'onglet reste ouvert
+  },
 };
