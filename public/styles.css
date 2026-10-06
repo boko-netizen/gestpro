@@ -135,3 +135,6 @@ dialog::backdrop { background: rgba(15, 20, 30, .45); }
   #dialogue-corps { grid-template-columns: 1fr; }
   .outils input { max-width: none; }
 }
+.ligne-mdp { display: flex; gap: 6px; }
+.ligne-mdp input { flex: 1; min-width: 0; }
+@media (max-width: 480px) { .ligne-mdp { flex-wrap: wrap; } .ligne-mdp input { flex-basis: 100%; } }
