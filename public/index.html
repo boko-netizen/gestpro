@@ -10,6 +10,19 @@
   <script src="app.js" defer></script>
 </head>
 <body>
+  <!-- Annonce affichée à l'ouverture du site (voir « pub » dans config.js) -->
+  <div id="pub" class="pub" hidden role="dialog" aria-label="Annonce">
+    <img id="pub-image" alt="">
+    <div class="pub-voile"></div>
+    <div class="pub-texte">
+      <div class="pub-titre nom-entreprise">MA CAVE</div>
+      <div class="pub-slogan" id="pub-slogan"></div>
+    </div>
+    <div class="pub-compteur"><span id="pub-secondes">10</span> s</div>
+    <button type="button" class="pub-passer" id="pub-passer" hidden>Passer ›</button>
+    <div class="pub-barre"><span id="pub-progression"></span></div>
+  </div>
+
   <!-- Écran de connexion -->
   <main id="ecran-connexion" class="connexion" hidden>
     <form id="form-connexion" class="carte-connexion" autocomplete="on">
