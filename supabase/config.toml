@@ -1,0 +1,7 @@
+# Configuration Supabase CLI (utilisée par le déploiement GitHub Actions)
+project_id = "gestpro"
+
+[functions.admin-users]
+# Le jeton est vérifié dans la fonction elle-même (admin.auth.getUser),
+# ce qui laisse aussi passer la requête préliminaire CORS du navigateur.
+verify_jwt = false
