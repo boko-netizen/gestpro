@@ -204,12 +204,12 @@
 
   function afficherSecret(titre, identifiant, motDePasse) {
     ouvrirDialogue({
-      titre, ok: 'J’ai noté le mot de passe', sansAnnuler: true,
+      titre, ok: 'J’ai noté', sansAnnuler: true,
       corps: `
         <div class="large"><label>Identifiant</label><div class="secret">${esc(identifiant)}</div></div>
         <div class="large"><label>Mot de passe</label><div class="secret" id="secret-mdp">${esc(motDePasse)}</div></div>
         <div class="large"><button type="button" class="btn" id="btn-copier">Copier l’identifiant et le mot de passe</button></div>
-        <p class="note large">Ce mot de passe ne sera plus jamais affiché. Transmettez-le à la personne par un moyen sûr.</p>`,
+        <p class="note large">Ce récapitulatif ne sera plus affiché. Transmettez ces informations à la personne par un moyen sûr.</p>`,
       apres: () => {
         $('#btn-copier').onclick = async () => {
           try {
@@ -550,9 +550,9 @@
 
   async function vueUtilisateurs() {
     $('#titre-vue').textContent = 'Utilisateurs';
-    $('#actions-vue').innerHTML = '<button class="btn primaire" id="btn-gen">+ Générer un compte</button>';
+    $('#actions-vue').innerHTML = '<button class="btn primaire" id="btn-gen">+ Créer un compte</button>';
     $('#btn-gen').onclick = creerCompte;
-    $('#vue').innerHTML = '<p class="note">Les comptes sont créés ici avec un mot de passe aléatoire, affiché une seule fois. Gestionnaire : lecture et écriture. Lecteur : lecture seule.</p><br><div id="liste"><p class="vide">Chargement…</p></div>';
+    $('#vue').innerHTML = '<p class="note">Créez ici les comptes de votre équipe, avec l’identifiant et le mot de passe de votre choix. Gestionnaire : lecture et écriture. Lecteur : lecture seule.</p><br><div id="liste"><p class="vide">Chargement…</p></div>';
     const { users } = await appelAdmin({ action: 'list' });
     if (vueActive !== 'utilisateurs') return;
     $('#liste').innerHTML = `<div class="table-wrap"><table>
@@ -564,7 +564,7 @@
           <td>${u.moi ? `<span class="badge">${ROLES[u.role]}</span>` : `<select data-role="${u.id}" aria-label="Rôle">${Object.entries(ROLES).map(([k, l]) => `<option value="${k}" ${k === u.role ? 'selected' : ''}>${l}</option>`).join('')}</select>`}</td>
           <td>${dateHeureFr(u.last_sign_in_at)}</td>
           <td>${dateFr(u.created_at)}</td>
-          <td class="acts">${u.moi ? '' : `<button class="btn petit" data-reset="${u.id}" data-ident="${esc(u.identifiant)}">Nouveau mot de passe</button><button class="btn petit danger" data-del="${u.id}" data-ident="${esc(u.identifiant)}">Supprimer</button>`}</td>
+          <td class="acts">${u.moi ? '' : `<button class="btn petit" data-reset="${u.id}" data-ident="${esc(u.identifiant)}">Changer le mot de passe</button><button class="btn petit danger" data-del="${u.id}" data-ident="${esc(u.identifiant)}">Supprimer</button>`}</td>
         </tr>`).join('')}
       </tbody></table></div>`;
     $$('[data-role]').forEach((s) => (s.onchange = async () => {
@@ -572,13 +572,7 @@
       catch (e) { toast(messageErreur(e), true); }
       afficher('utilisateurs');
     }));
-    $$('[data-reset]').forEach((b) => (b.onclick = async () => {
-      if (!confirm(`Générer un nouveau mot de passe pour « ${b.dataset.ident} » ? L'ancien ne fonctionnera plus.`)) return;
-      try {
-        const r = await appelAdmin({ action: 'reset', id: b.dataset.reset });
-        afficherSecret('Nouveau mot de passe', b.dataset.ident, r.mot_de_passe);
-      } catch (e) { toast(messageErreur(e), true); }
-    }));
+    $$('[data-reset]').forEach((b) => (b.onclick = () => changerMotDePasse(b.dataset.reset, b.dataset.ident)));
     $$('[data-del]').forEach((b) => (b.onclick = async () => {
       if (!confirm(`Supprimer le compte « ${b.dataset.ident} » ? La personne perdra immédiatement l'accès.`)) return;
       try { await appelAdmin({ action: 'delete', id: b.dataset.del }); toast('Compte supprimé'); }
@@ -587,23 +581,76 @@
     }));
   }
 
+  // Champ mot de passe : saisi par l'administrateur, ou généré au hasard
+  const CHAMP_MDP = `
+    <div class="large"><label for="u_mdp">Mot de passe *</label>
+      <div class="ligne-mdp">
+        <input id="u_mdp" name="mot_de_passe" type="password" required minlength="8" maxlength="72" autocomplete="new-password" placeholder="8 caractères minimum">
+        <button type="button" class="btn" id="btn-voir-mdp">Afficher</button>
+        <button type="button" class="btn" id="btn-gen-mdp">Générer</button>
+      </div>
+    </div>
+    <p class="note large">Tapez le mot de passe de votre choix (8 caractères minimum), ou cliquez sur « Générer » pour en créer un au hasard.</p>`;
+
+  function brancherChampMdp(form) {
+    const champ = form.mot_de_passe;
+    $('#btn-voir-mdp').onclick = () => {
+      const visible = champ.type === 'text';
+      champ.type = visible ? 'password' : 'text';
+      $('#btn-voir-mdp').textContent = visible ? 'Afficher' : 'Masquer';
+    };
+    $('#btn-gen-mdp').onclick = () => {
+      const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#%*-_';
+      const octets = crypto.getRandomValues(new Uint8Array(64));
+      let mdp = '';
+      for (const o of octets) { if (o < 256 - (256 % alphabet.length) && mdp.length < 14) mdp += alphabet[o % alphabet.length]; }
+      champ.value = mdp;
+      champ.type = 'text';
+      $('#btn-voir-mdp').textContent = 'Masquer';
+    };
+  }
+
+  function verifierMdp(mdp) {
+    if (mdp.length < 8) throw new Error('Le mot de passe doit contenir au moins 8 caractères.');
+    if (/^\s|\s$/.test(mdp)) throw new Error('Le mot de passe ne doit pas commencer ni finir par un espace.');
+  }
+
   function creerCompte() {
     ouvrirDialogue({
-      titre: 'Générer un compte', ok: 'Générer',
+      titre: 'Créer un compte', ok: 'Créer le compte',
       corps: `
-        <div><label for="u_ident">Identifiant *</label><input id="u_ident" name="identifiant" required pattern="[a-zA-Z0-9._\\-]{3,32}" placeholder="ex. awa.kone" autocomplete="off"></div>
-        <div><label for="u_nom">Nom complet</label><input id="u_nom" name="nom" placeholder="ex. Awa Koné"></div>
+        <div><label for="u_ident">Identifiant (login) *</label><input id="u_ident" name="identifiant" required pattern="[a-zA-Z0-9._\\-]{3,32}" placeholder="ex. awa.kone" autocomplete="off"></div>
+        <div><label for="u_nom">Nom complet</label><input id="u_nom" name="nom" placeholder="ex. Awa Koné" autocomplete="off"></div>
+        <p class="note large">Identifiant : 3 à 32 caractères, lettres, chiffres, point, tiret ou tiret bas, sans espace ni accent.</p>
+        ${CHAMP_MDP}
         <div class="large"><label for="u_role">Rôle *</label><select id="u_role" name="role">
           <option value="gestionnaire">Gestionnaire (lecture et écriture)</option>
           <option value="lecteur">Lecteur (lecture seule)</option>
           <option value="admin">Administrateur (tout, y compris les comptes)</option>
-        </select></div>
-        <p class="note large">3 à 32 caractères : lettres, chiffres, point, tiret ou tiret bas.</p>`,
+        </select></div>`,
+      apres: brancherChampMdp,
       onOk: async (form) => {
-        const r = await appelAdmin({ action: 'create', identifiant: form.identifiant.value, nom: form.nom.value, role: form.role.value });
-        // Le dialogue se ferme après onOk : on affiche le secret juste après
+        verifierMdp(form.mot_de_passe.value);
+        const r = await appelAdmin({
+          action: 'create', identifiant: form.identifiant.value, nom: form.nom.value,
+          role: form.role.value, mot_de_passe: form.mot_de_passe.value,
+        });
+        // Le dialogue se ferme après onOk : on affiche le récapitulatif juste après
         setTimeout(() => afficherSecret('Compte créé', r.identifiant, r.mot_de_passe), 0);
         afficher('utilisateurs');
+      },
+    });
+  }
+
+  function changerMotDePasse(id, identifiant) {
+    ouvrirDialogue({
+      titre: `Nouveau mot de passe pour « ${identifiant} »`, ok: 'Enregistrer',
+      corps: `${CHAMP_MDP}<p class="note large">L'ancien mot de passe ne fonctionnera plus.</p>`,
+      apres: brancherChampMdp,
+      onOk: async (form) => {
+        verifierMdp(form.mot_de_passe.value);
+        const r = await appelAdmin({ action: 'reset', id, mot_de_passe: form.mot_de_passe.value });
+        setTimeout(() => afficherSecret('Mot de passe changé', identifiant, r.mot_de_passe), 0);
       },
     });
   }
