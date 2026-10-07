@@ -156,3 +156,9 @@ body.pub-ouverte { overflow: hidden; }
 @keyframes pub-entree { from { opacity: 0; } to { opacity: 1; } }
 @keyframes pub-zoom { from { transform: scale(1); } to { transform: scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { .pub img, .pub { animation: none; } }
+/* Affiche affichée en entier, bords remplis par la même image floutée */
+.pub #pub-fond { position: absolute; inset: -40px; width: calc(100% + 80px); height: calc(100% + 80px); object-fit: cover; filter: blur(28px) brightness(.45); animation: none; }
+.pub.pub-entier #pub-image { object-fit: contain; animation: pub-zoom-doux 12s ease-out forwards; }
+.pub.pub-sans-texte .pub-texte, .pub.pub-sans-texte .pub-voile { display: none; }
+@keyframes pub-zoom-doux { from { transform: scale(1); } to { transform: scale(1.03); } }
+@media (prefers-reduced-motion: reduce) { .pub.pub-entier #pub-image { animation: none; } }

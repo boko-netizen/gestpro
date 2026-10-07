@@ -677,8 +677,14 @@
     const img = $('#pub-image');
     zone.classList.add('sans-image');           // visuel de secours tant que la photo n'est pas chargée
     img.onload = () => zone.classList.remove('sans-image');
-    img.onerror = () => { img.hidden = true; };
-    if (pub.image) img.src = pub.image; else img.hidden = true;
+    img.onerror = () => { img.hidden = true; zone.classList.remove('pub-sans-texte'); };
+    const fond = $('#pub-fond');
+    const entier = pub.ajustement !== 'remplir';
+    zone.classList.toggle('pub-entier', entier);
+    zone.classList.toggle('pub-sans-texte', pub.afficherTexte === false);
+    fond.hidden = !entier;
+    fond.onerror = () => { fond.hidden = true; };
+    if (pub.image) { img.src = pub.image; if (entier) fond.src = pub.image; } else { img.hidden = true; fond.hidden = true; }
     img.alt = `${CFG.nomEntreprise || 'La cave'}`;
     $('#pub-slogan').textContent = pub.slogan || '';
     zone.hidden = false;

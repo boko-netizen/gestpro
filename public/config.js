@@ -19,6 +19,10 @@ window.GESTPRO_CONFIG = {
     active: true,
     image: "img/cave.jpg",
     duree: 10,                 // en secondes
+    // "entier" : l'image est affichée en entier (idéal pour une affiche avec du texte)
+    // "remplir" : l'image remplit l'écran, quitte à rogner les bords (idéal pour une photo)
+    ajustement: "entier",
+    afficherTexte: false,      // true = nom et slogan écrits par-dessus l'image
     slogan: "Vins & spiritueux de qualité",
     passable: false,           // true = bouton « Passer » visible
     uneFoisParSession: true,   // true = une seule fois tant que l'onglet reste ouvert
