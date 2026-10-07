@@ -41,7 +41,8 @@
       champs: [
         { k: 'date', l: 'Date', type: 'date', req: true, defaut: aujourdhui },
         { k: 'client_id', l: 'Client', type: 'ref', ref: 'clients' },
-        { k: 'produit_id', l: 'Produit', type: 'ref', ref: 'produits', req: true, large: true },
+        { k: 'produit_id', l: 'Produit', type: 'ref', ref: 'produits', req: true, large: true, saisie: true,
+          aide: 'Tapez le nom du produit : les produits du stock vous sont proposés au fur et à mesure.' },
         { k: 'quantite', l: 'Quantité', type: 'number', req: true, min: 1, num: true },
         { k: 'prix_unitaire', l: 'Prix unitaire', type: 'money', req: true },
         { k: 'montant', l: 'Montant', type: 'money', form: false, total: true },
@@ -56,7 +57,8 @@
       champs: [
         { k: 'date', l: 'Date', type: 'date', req: true, defaut: aujourdhui },
         { k: 'fournisseur_id', l: 'Fournisseur', type: 'ref', ref: 'fournisseurs' },
-        { k: 'produit_id', l: 'Produit', type: 'ref', ref: 'produits', req: true, large: true },
+        { k: 'produit_id', l: 'Produit', type: 'ref', ref: 'produits', req: true, large: true, saisie: true, creerSiAbsent: true,
+          aide: 'Tapez le nom du produit. S’il n’existe pas encore, il sera ajouté automatiquement au stock.' },
         { k: 'quantite', l: 'Quantité', type: 'number', req: true, min: 1, num: true },
         { k: 'prix_unitaire', l: "Prix d'achat unitaire", type: 'money' },
         { k: 'montant', l: 'Montant', type: 'money', form: false, total: true },
@@ -436,6 +438,21 @@
     $$('[data-sup]', zone).forEach((b) => (b.onclick = () => supprimer(cle, Number(b.dataset.sup))));
   }
 
+  // --- Saisie libre du nom d'un produit -----------------------------
+  const nomProduit = (p) => `${p.designation}${p.reference ? ` (${p.reference})` : ''}`;
+  const normaliser = (t) => String(t ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+  // Retrouve le produit correspondant au texte tapé (sans tenir compte des accents ni des majuscules)
+  function trouverProduit(texte, produits) {
+    const n = normaliser(texte);
+    if (!n) return null;
+    const exact = produits.find((p) => normaliser(nomProduit(p)) === n);
+    if (exact) return exact;
+    const memeNom = produits.filter((p) => normaliser(p.designation) === n);
+    if (memeNom.length > 1) throw new Error(`Plusieurs produits s'appellent « ${texte} ». Choisissez celui avec la bonne référence dans la liste.`);
+    return memeNom[0] || null;
+  }
+
   async function chargerOptions(ref) {
     const d = LIBELLES_REF[ref];
     const { data, error } = await sb.from(ref).select(d.cols).order(d.ordre, { ascending: !d.desc }).limit(2000);
@@ -456,6 +473,13 @@
       case 'liste':
         input = `<input id="${id}" name="${c.k}" list="dl_${c.k}" value="${esc(val)}" ${req}><datalist id="dl_${c.k}">${c.opts.map((o) => `<option value="${esc(o)}">`).join('')}</datalist>`; break;
       case 'ref': {
+        if (c.saisie) {
+          const actuel = options.find((o) => o.id == val);
+          input = `<input id="${id}" name="${c.k}" list="dl_${c.k}" value="${esc(actuel ? nomProduit(actuel) : '')}" ${req} autocomplete="off" placeholder="Ex. : Moët & Chandon Impérial">`
+            + `<datalist id="dl_${c.k}">${options.map((o) => `<option value="${esc(nomProduit(o))}" label="${esc(`stock : ${o.quantite}`)}">`).join('')}</datalist>`
+            + (c.aide ? `<p class="note">${esc(c.aide)}</p>` : '');
+          break;
+        }
         const lib = LIBELLES_REF[c.ref].libelle;
         input = `<select id="${id}" name="${c.k}" ${req}><option value="">${c.req ? '— Choisir —' : '— Aucun —'}</option>${options.map((o) => `<option value="${o.id}" ${o.id == val ? 'selected' : ''}>${esc(lib(o))}</option>`).join('')}</select>`;
         break;
@@ -487,24 +511,53 @@
       apres: (form) => {
         for (const [k, fn] of Object.entries(ent.surChange || {})) {
           const champ = champs.find((c) => c.k === k);
-          form[k].addEventListener('change', () => fn(form, (options[champ.ref] || []).find((o) => o.id == form[k].value)));
+          const liste = options[champ.ref] || [];
+          const trouver = () => {
+            if (!champ.saisie) return liste.find((o) => o.id == form[k].value);
+            try { return trouverProduit(form[k].value, liste); } catch { return null; }
+          };
+          form[k].addEventListener('change', () => fn(form, trouver()));
         }
       },
       onOk: async (form) => {
         const donnees = {};
+        let aCreer = null;   // produit tapé qui n'existe pas encore (commande fournisseur)
         for (const c of champs) {
           const v = form[c.k].value.trim();
+          if (c.saisie) {
+            if (!v) { if (c.req) throw new Error(`Indiquez le ${c.l.toLowerCase()}.`); donnees[c.k] = null; continue; }
+            const p = trouverProduit(v, options[c.ref] || []);
+            if (p) donnees[c.k] = p.id;
+            else if (c.creerSiAbsent) aCreer = { champ: c.k, designation: v.slice(0, 200) };
+            else throw new Error(`« ${v} » n'est pas dans le stock. Choisissez un produit proposé dans la liste, ou ajoutez-le d'abord dans Stock (ou via une commande fournisseur).`);
+            continue;
+          }
           if (v === '') donnees[c.k] = null;
           else if (c.type === 'ref' || c.type === 'number' || c.type === 'money') donnees[c.k] = Number(v);
           else donnees[c.k] = v;
           // Les champs avec valeur par défaut en base ne doivent pas recevoir null
           if (donnees[c.k] === null && c.defaut && !c.req) delete donnees[c.k];
         }
+        let nouveauProduit = null;
+        if (aCreer) {
+          const { data: p, error: eP } = await sb.from('produits').insert({
+            designation: aCreer.designation,
+            prix_achat: donnees.prix_unitaire ?? 0,
+            fournisseur_id: donnees.fournisseur_id ?? null,
+          }).select('id').single();
+          if (eP) throw eP;
+          nouveauProduit = p.id;
+          donnees[aCreer.champ] = p.id;
+        }
         const { error } = ligne
           ? await sb.from(cle).update(donnees).eq('id', ligne.id)
           : await sb.from(cle).insert(donnees);
-        if (error) throw error;
-        toast(ligne ? 'Modifications enregistrées' : 'Ajouté');
+        if (error) {
+          // Pas de produit orphelin si l'enregistrement échoue
+          if (nouveauProduit) await sb.from('produits').delete().eq('id', nouveauProduit);
+          throw error;
+        }
+        toast(aCreer ? `« ${aCreer.designation} » ajouté au stock, ${ent.article.replace(/^une? /, '')} enregistrée` : (ligne ? 'Modifications enregistrées' : 'Ajouté'));
         afficher(cle, true);
       },
     });
