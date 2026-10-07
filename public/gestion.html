@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GestPro – Gestion commerciale</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="config.js" defer></script>
+  <script src="vendor/supabase.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <!-- Annonce affichée à l'ouverture du site (voir « pub » dans config.js) -->
+  <div id="pub" class="pub" hidden role="dialog" aria-label="Annonce">
+    <img id="pub-fond" alt="" aria-hidden="true">
+    <img id="pub-image" alt="">
+    <div class="pub-voile"></div>
+    <div class="pub-texte">
+      <div class="pub-titre nom-entreprise">MA CAVE</div>
+      <div class="pub-slogan" id="pub-slogan"></div>
+    </div>
+    <div class="pub-compteur"><span id="pub-secondes">10</span> s</div>
+    <button type="button" class="pub-passer" id="pub-passer" hidden>Passer ›</button>
+    <div class="pub-barre"><span id="pub-progression"></span></div>
+  </div>
+
+  <!-- Écran de connexion -->
+  <main id="ecran-connexion" class="connexion" hidden>
+    <form id="form-connexion" class="carte-connexion" autocomplete="on">
+      <div class="logo">G</div>
+      <h1 class="nom-entreprise">GestPro</h1>
+      <p class="sous-titre">Gestion commerciale</p>
+      <label>Identifiant
+        <input name="identifiant" autocomplete="username" required autofocus>
+      </label>
+      <label>Mot de passe
+        <input name="mot_de_passe" type="password" autocomplete="current-password" required>
+      </label>
+      <p id="erreur-connexion" class="erreur" role="alert"></p>
+      <button class="btn primaire" type="submit">Se connecter</button>
+      <p class="aide">Pas de compte ? Demandez à votre administrateur.</p>
+    </form>
+  </main>
+
+  <!-- Application -->
+  <div id="ecran-app" class="app" hidden>
+    <aside class="barre">
+      <div class="marque"><span class="logo petit">G</span><span class="nom-entreprise">GestPro</span></div>
+      <nav id="menu"></nav>
+      <div class="profil">
+        <div id="profil-nom"></div>
+        <div id="profil-role" class="role"></div>
+        <button id="btn-deconnexion" class="btn lien">Se déconnecter</button>
+      </div>
+    </aside>
+    <main class="contenu">
+      <header class="entete">
+        <button id="btn-menu" class="btn icone" aria-label="Menu">☰</button>
+        <h2 id="titre-vue"></h2>
+        <div id="actions-vue" class="actions"></div>
+      </header>
+      <section id="vue"></section>
+    </main>
+  </div>
+
+  <dialog id="dialogue">
+    <form id="form-dialogue" method="dialog">
+      <h3 id="dialogue-titre"></h3>
+      <div id="dialogue-corps"></div>
+      <p id="dialogue-erreur" class="erreur" role="alert"></p>
+      <div class="pied">
+        <button type="button" class="btn" id="dialogue-annuler">Annuler</button>
+        <button type="submit" class="btn primaire" id="dialogue-ok">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <noscript>GestPro nécessite JavaScript.</noscript>
+</body>
+</html>

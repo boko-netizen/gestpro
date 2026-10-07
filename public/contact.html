@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Contact – Le Paradis des Bavins</title>
+  <meta name="description" content="Téléphone, WhatsApp, e-mail et adresse du Paradis des Bavins à Maroc Anador.">
+  <meta property="og:title" content="Contact – Le Paradis des Bavins">
+  <meta property="og:description" content="Téléphone, WhatsApp, e-mail et adresse du Paradis des Bavins à Maroc Anador.">
+  <meta property="og:image" content="img/cave.jpg">
+  <meta name="theme-color" content="#140e09">
+  <link rel="icon" href="img/logo-pb.jpg">
+  <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vitrine.css">
+  <script src="vitrine.js" defer></script>
+</head>
+<body class="page-contact">
+  <a class="aller-contenu" href="#contenu">Aller au contenu</a>
+
+  <header class="entete">
+    <div class="entete-int">
+      <a class="marque" href="./">
+        <img src="img/logo-pb.jpg" alt="" width="44" height="44">
+        <span>Le Paradis des Bavins</span>
+      </a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+      <nav id="nav" class="nav" aria-label="Navigation principale">
+        <a href="./">Accueil</a>
+        <a href="services">Services</a>
+        <a href="produits">Produits</a>
+        <a href="contact" aria-current="page">Contact</a>
+        <a class="btn btn-or nav-cta" data-wa="Bonjour, je voudrais passer une commande." href="contact">Commander</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <section class="page-tete">
+      <h1>Nous contacter</h1>
+      <p>Une question, une commande, un devis ? Écrivez-nous ou passez nous voir.</p>
+    </section>
+    <section class="section section-suite">
+      <div class="contact">
+        <dl class="coord">
+          <div>
+            <dt>Téléphone</dt>
+            <dd><a data-tel data-info="telephoneAffiche" href="#">01 01 92 00 57</a></dd>
+          </div>
+          <div>
+            <dt>WhatsApp</dt>
+            <dd><a data-wa="Bonjour !" href="#">Écrire sur WhatsApp</a></dd>
+          </div>
+          <div>
+            <dt>E-mail</dt>
+            <dd><a data-mail data-info="email" href="#">bchrisyvannathan@gmail.com</a></dd>
+          </div>
+          <div>
+            <dt>Adresse</dt>
+            <dd><span data-info="quartier">Maroc Anador</span><br><a data-carte href="#" target="_blank" rel="noopener">Voir sur la carte</a></dd>
+          </div>
+          <div id="bloc-horaires" hidden>
+            <dt>Horaires</dt>
+            <dd id="horaires"></dd>
+          </div>
+        </dl>
+
+        <form class="commande" id="form-commande" novalidate>
+          <h3>Préparer ma commande</h3>
+          <p>Votre message s'ouvre dans WhatsApp, prêt à envoyer.</p>
+          <label for="c-nom">Votre nom</label>
+          <input id="c-nom" name="nom" autocomplete="name" required>
+          <label for="c-message">Votre commande ou votre question</label>
+          <textarea id="c-message" name="message" rows="5" required placeholder="Ex. : 2 Moët & Chandon, 1 coffret cadeau, livraison samedi"></textarea>
+          <p class="erreur" id="c-erreur" role="alert"></p>
+          <button class="btn btn-or" type="submit">Envoyer sur WhatsApp</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <img src="img/logo-pb.jpg" alt="" width="56" height="56">
+    <p class="pied-nom">Le Paradis des Bavins</p>
+    <nav class="pied-nav" aria-label="Pages du site">
+      <a href="./">Accueil</a>
+      <a href="services">Services</a>
+      <a href="produits">Produits</a>
+      <a href="contact">Contact</a>
+    </nav>
+    <p class="pied-sante">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.</p>
+    <p class="pied-liens"><span>© <span id="annee">2026</span> Le Paradis des Bavins</span><a href="gestion">Espace gestion</a></p>
+  </footer>
+</body>
+</html>

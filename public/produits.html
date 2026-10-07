@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Nos produits – Le Paradis des Bavins</title>
+  <meta name="description" content="Champagnes, vins, spiritueux, liqueurs, bières, épicerie fine, confiseries, snacks et cadeaux.">
+  <meta property="og:title" content="Nos produits – Le Paradis des Bavins">
+  <meta property="og:description" content="Champagnes, vins, spiritueux, liqueurs, bières, épicerie fine, confiseries, snacks et cadeaux.">
+  <meta property="og:image" content="img/cave.jpg">
+  <meta name="theme-color" content="#140e09">
+  <link rel="icon" href="img/logo-pb.jpg">
+  <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vitrine.css">
+  <script src="vitrine.js" defer></script>
+</head>
+<body class="page-produits">
+  <a class="aller-contenu" href="#contenu">Aller au contenu</a>
+
+  <header class="entete">
+    <div class="entete-int">
+      <a class="marque" href="./">
+        <img src="img/logo-pb.jpg" alt="" width="44" height="44">
+        <span>Le Paradis des Bavins</span>
+      </a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+      <nav id="nav" class="nav" aria-label="Navigation principale">
+        <a href="./">Accueil</a>
+        <a href="services">Services</a>
+        <a href="produits" aria-current="page">Produits</a>
+        <a href="contact">Contact</a>
+        <a class="btn btn-or nav-cta" data-wa="Bonjour, je voudrais passer une commande." href="contact">Commander</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <section class="page-tete">
+      <h1>La carte</h1>
+      <p>Touchez une ligne pour nous demander les prix et la disponibilité sur WhatsApp.</p>
+    </section>
+    <section class="section section-suite">
+      <div class="carte">
+        <ul class="carte-liste" id="carte-liste"></ul>
+      </div>
+      <figure class="affiche">
+        <img src="img/cave.jpg" width="1280" height="853" alt="Affiche du Paradis des Bavins : champagnes, vins, spiritueux, liqueurs, bières, épicerie fine, confiseries, snacks et cadeaux">
+      </figure>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <img src="img/logo-pb.jpg" alt="" width="56" height="56">
+    <p class="pied-nom">Le Paradis des Bavins</p>
+    <nav class="pied-nav" aria-label="Pages du site">
+      <a href="./">Accueil</a>
+      <a href="services">Services</a>
+      <a href="produits">Produits</a>
+      <a href="contact">Contact</a>
+    </nav>
+    <p class="pied-sante">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.</p>
+    <p class="pied-liens"><span>© <span id="annee">2026</span> Le Paradis des Bavins</span><a href="gestion">Espace gestion</a></p>
+  </footer>
+</body>
+</html>

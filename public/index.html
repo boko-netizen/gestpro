@@ -3,79 +3,75 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>GestPro – Gestion commerciale</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="config.js" defer></script>
-  <script src="vendor/supabase.js" defer></script>
-  <script src="app.js" defer></script>
+  <title>Le Paradis des Bavins – Cave, boissons et épicerie fine</title>
+  <meta name="description" content="Cave, boissons et épicerie fine à Maroc Anador : champagnes, vins, spiritueux, bières, confiseries, snacks et coffrets cadeaux. Commandez sur WhatsApp.">
+  <meta property="og:title" content="Le Paradis des Bavins – Cave, boissons et épicerie fine">
+  <meta property="og:description" content="Cave, boissons et épicerie fine à Maroc Anador : champagnes, vins, spiritueux, bières, confiseries, snacks et coffrets cadeaux. Commandez sur WhatsApp.">
+  <meta property="og:image" content="img/cave.jpg">
+  <meta name="theme-color" content="#140e09">
+  <link rel="icon" href="img/logo-pb.jpg">
+  <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vitrine.css">
+  <script src="vitrine.js" defer></script>
 </head>
-<body>
-  <!-- Annonce affichée à l'ouverture du site (voir « pub » dans config.js) -->
-  <div id="pub" class="pub" hidden role="dialog" aria-label="Annonce">
-    <img id="pub-fond" alt="" aria-hidden="true">
-    <img id="pub-image" alt="">
-    <div class="pub-voile"></div>
-    <div class="pub-texte">
-      <div class="pub-titre nom-entreprise">MA CAVE</div>
-      <div class="pub-slogan" id="pub-slogan"></div>
-    </div>
-    <div class="pub-compteur"><span id="pub-secondes">10</span> s</div>
-    <button type="button" class="pub-passer" id="pub-passer" hidden>Passer ›</button>
-    <div class="pub-barre"><span id="pub-progression"></span></div>
-  </div>
+<body class="page-index">
+  <a class="aller-contenu" href="#contenu">Aller au contenu</a>
 
-  <!-- Écran de connexion -->
-  <main id="ecran-connexion" class="connexion" hidden>
-    <form id="form-connexion" class="carte-connexion" autocomplete="on">
-      <div class="logo">G</div>
-      <h1 class="nom-entreprise">GestPro</h1>
-      <p class="sous-titre">Gestion commerciale</p>
-      <label>Identifiant
-        <input name="identifiant" autocomplete="username" required autofocus>
-      </label>
-      <label>Mot de passe
-        <input name="mot_de_passe" type="password" autocomplete="current-password" required>
-      </label>
-      <p id="erreur-connexion" class="erreur" role="alert"></p>
-      <button class="btn primaire" type="submit">Se connecter</button>
-      <p class="aide">Pas de compte ? Demandez à votre administrateur.</p>
-    </form>
+  <header class="entete">
+    <div class="entete-int">
+      <a class="marque" href="./">
+        <img src="img/logo-pb.jpg" alt="" width="44" height="44">
+        <span>Le Paradis des Bavins</span>
+      </a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+      <nav id="nav" class="nav" aria-label="Navigation principale">
+        <a href="./" aria-current="page">Accueil</a>
+        <a href="services">Services</a>
+        <a href="produits">Produits</a>
+        <a href="contact">Contact</a>
+        <a class="btn btn-or nav-cta" data-wa="Bonjour, je voudrais passer une commande." href="contact">Commander</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="contenu">
+    <section class="hero">
+      <div class="hero-texte">
+        <p class="hero-lieu">Cave, boissons et épicerie fine à <span data-info="quartier">Maroc Anador</span></p>
+        <h1>Le paradis<br>des bavins</h1>
+        <p class="hero-devise">La qualité au rendez-vous !</p>
+        <p class="hero-intro">Champagnes, vins, spiritueux, bières, confiseries et snacks : passez à la cave ou envoyez-nous votre liste, on prépare votre commande.</p>
+        <div class="hero-actions">
+          <a class="btn btn-or" data-wa="Bonjour, je voudrais passer une commande." href="#contact">Commander sur WhatsApp</a>
+          <a class="btn btn-ligne" data-tel href="#contact">Appeler la cave</a>
+        </div>
+      </div>
+      <figure class="hero-image">
+        <img src="img/bouteilles.jpg" width="1050" height="410" alt="Sélection de la cave : champagnes, cognac, whiskies, vodkas, bières, confiseries et snacks">
+      </figure>
+    </section>
+
+    <section class="section">
+      <h2 class="titre-sobre">Que cherchez-vous ?</h2>
+      <ul class="raccourcis">
+        <li><a href="produits"><span class="r-titre">La carte</span><span class="r-texte">Champagnes, vins, spiritueux, bières, confiseries, snacks et cadeaux.</span><span class="r-action">Voir les produits</span></a></li>
+        <li><a href="services"><span class="r-titre">Nos services</span><span class="r-texte">Vente sur place, commande sur WhatsApp, coffrets cadeaux, événements.</span><span class="r-action">Voir les services</span></a></li>
+        <li><a href="contact"><span class="r-titre">Nous trouver</span><span class="r-texte">À <span data-info="quartier">Maroc Anador</span>. Appelez-nous ou écrivez-nous sur WhatsApp.</span><span class="r-action">Voir le contact</span></a></li>
+      </ul>
+    </section>
   </main>
 
-  <!-- Application -->
-  <div id="ecran-app" class="app" hidden>
-    <aside class="barre">
-      <div class="marque"><span class="logo petit">G</span><span class="nom-entreprise">GestPro</span></div>
-      <nav id="menu"></nav>
-      <div class="profil">
-        <div id="profil-nom"></div>
-        <div id="profil-role" class="role"></div>
-        <button id="btn-deconnexion" class="btn lien">Se déconnecter</button>
-      </div>
-    </aside>
-    <main class="contenu">
-      <header class="entete">
-        <button id="btn-menu" class="btn icone" aria-label="Menu">☰</button>
-        <h2 id="titre-vue"></h2>
-        <div id="actions-vue" class="actions"></div>
-      </header>
-      <section id="vue"></section>
-    </main>
-  </div>
-
-  <dialog id="dialogue">
-    <form id="form-dialogue" method="dialog">
-      <h3 id="dialogue-titre"></h3>
-      <div id="dialogue-corps"></div>
-      <p id="dialogue-erreur" class="erreur" role="alert"></p>
-      <div class="pied">
-        <button type="button" class="btn" id="dialogue-annuler">Annuler</button>
-        <button type="submit" class="btn primaire" id="dialogue-ok">Enregistrer</button>
-      </div>
-    </form>
-  </dialog>
-
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
-  <noscript>GestPro nécessite JavaScript.</noscript>
+  <footer class="pied">
+    <img src="img/logo-pb.jpg" alt="" width="56" height="56">
+    <p class="pied-nom">Le Paradis des Bavins</p>
+    <nav class="pied-nav" aria-label="Pages du site">
+      <a href="./">Accueil</a>
+      <a href="services">Services</a>
+      <a href="produits">Produits</a>
+      <a href="contact">Contact</a>
+    </nav>
+    <p class="pied-sante">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.</p>
+    <p class="pied-liens"><span>© <span id="annee">2026</span> Le Paradis des Bavins</span><a href="gestion">Espace gestion</a></p>
+  </footer>
 </body>
 </html>
