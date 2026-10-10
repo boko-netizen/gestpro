@@ -162,3 +162,5 @@ body.pub-ouverte { overflow: hidden; }
 .pub.pub-sans-texte .pub-texte, .pub.pub-sans-texte .pub-voile { display: none; }
 @keyframes pub-zoom-doux { from { transform: scale(1); } to { transform: scale(1.03); } }
 @media (prefers-reduced-motion: reduce) { .pub.pub-entier #pub-image { animation: none; } }
+.pub #pub-motion { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.pub.pub-motion { background: #0a0705; }

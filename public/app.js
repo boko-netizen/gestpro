@@ -725,8 +725,23 @@
     if (pub.uneFoisParSession) {
       try { if (sessionStorage.getItem('pubVue')) return; sessionStorage.setItem('pubVue', '1'); } catch { /* stockage indisponible */ }
     }
-    const duree = Math.max(1, Number(pub.duree) || 10);
     const zone = $('#pub');
+    const enMotion = pub.mode === 'motion' && window.MotionBavins;
+    const duree = Math.max(1, Number(pub.duree) || (enMotion ? 11 : 10));
+    if (enMotion) {
+      // Motion animé (motion.js) à la place de l'affiche fixe
+      $('#pub-image').hidden = true;
+      $('#pub-fond').hidden = true;
+      zone.classList.add('pub-sans-texte', 'pub-motion');
+      const toile = $('#pub-motion');
+      toile.hidden = false;
+      zone.hidden = false;
+      document.body.classList.add('pub-ouverte');
+      const m = window.MotionBavins.creer(toile);
+      m.lire();
+      lancerCompteARebours(zone, duree, pub, () => m.arreter());
+      return;
+    }
     const img = $('#pub-image');
     zone.classList.add('sans-image');           // visuel de secours tant que la photo n'est pas chargée
     img.onload = () => zone.classList.remove('sans-image');
@@ -742,13 +757,18 @@
     $('#pub-slogan').textContent = pub.slogan || '';
     zone.hidden = false;
     document.body.classList.add('pub-ouverte');
+    lancerCompteARebours(zone, duree, pub);
+  }
 
+  // Compte à rebours, barre de progression et fermeture de l'annonce
+  function lancerCompteARebours(zone, duree, pub, alaFermeture) {
     const debut = performance.now();
     const barre = $('#pub-progression');
     let fini = false;
     const fermer = () => {
       if (fini) return;
       fini = true;
+      if (alaFermeture) alaFermeture();
       zone.classList.add('pub-sortie');
       setTimeout(() => { zone.hidden = true; document.body.classList.remove('pub-ouverte'); }, 400);
     };

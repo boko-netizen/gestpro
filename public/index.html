@@ -12,6 +12,7 @@
   <link rel="icon" href="img/logo-pb.jpg">
   <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="vitrine.css">
+  <script src="motion.js" defer></script>
   <script src="vitrine.js" defer></script>
 </head>
 <body class="page-index">
@@ -38,7 +39,7 @@
     <section class="hero">
       <div class="hero-texte">
         <p class="hero-lieu">Cave, boissons et épicerie fine à <span data-info="quartier">Maroc Anador</span></p>
-        <h1>Le paradis<br>des bavins</h1>
+        <h1><span class="ligne"><span>Le paradis</span></span><span class="ligne"><span>des bavins</span></span></h1>
         <p class="hero-devise">La qualité au rendez-vous !</p>
         <p class="hero-intro">Champagnes, vins, spiritueux, bières, confiseries et snacks : passez à la cave ou envoyez-nous votre liste, on prépare votre commande.</p>
         <div class="hero-actions">
@@ -47,13 +48,22 @@
         </div>
       </div>
       <figure class="hero-image">
+        <span class="reflet" aria-hidden="true"></span>
         <img src="img/bouteilles.jpg" width="1050" height="410" alt="Sélection de la cave : champagnes, cognac, whiskies, vodkas, bières, confiseries et snacks">
       </figure>
     </section>
 
+    <section class="section section-motion" data-apparition>
+      <h2 class="titre-sobre">La cave en 10 secondes</h2>
+      <div class="motion-cadre">
+        <canvas id="motion-accueil" role="img" aria-label="Animation : le logo du Paradis des Bavins, nos champagnes, vins, spiritueux, bières, confiseries et snacks, puis notre numéro 01 01 92 00 57 à Maroc Anador."></canvas>
+        <button class="motion-rejouer" type="button" hidden>Revoir l'animation</button>
+      </div>
+    </section>
+
     <section class="section">
-      <h2 class="titre-sobre">Que cherchez-vous ?</h2>
-      <ul class="raccourcis">
+      <h2 class="titre-sobre" data-apparition>Que cherchez-vous ?</h2>
+      <ul class="raccourcis" data-cascade>
         <li><a href="produits"><span class="r-titre">La carte</span><span class="r-texte">Champagnes, vins, spiritueux, bières, confiseries, snacks et cadeaux.</span><span class="r-action">Voir les produits</span></a></li>
         <li><a href="services"><span class="r-titre">Nos services</span><span class="r-texte">Vente sur place, commande sur WhatsApp, coffrets cadeaux, événements.</span><span class="r-action">Voir les services</span></a></li>
         <li><a href="contact"><span class="r-titre">Nous trouver</span><span class="r-texte">À <span data-info="quartier">Maroc Anador</span>. Appelez-nous ou écrivez-nous sur WhatsApp.</span><span class="r-action">Voir le contact</span></a></li>

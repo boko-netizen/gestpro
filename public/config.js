@@ -17,8 +17,11 @@ window.GESTPRO_CONFIG = {
   // (ou changez le nom ci-dessous). Mettez active: false pour la désactiver.
   pub: {
     active: true,
+    // "motion" : animation de la cave (logo, bouteilles, catégories, coordonnées)
+    // "image"  : l'affiche fixe ci-dessous
+    mode: "motion",
     image: "img/cave.jpg",
-    duree: 10,                 // en secondes
+    duree: 11,                 // en secondes (le motion dure 10 s, puis 1 s sur la carte de fin)
     // "entier" : l'image est affichée en entier (idéal pour une affiche avec du texte)
     // "remplir" : l'image remplit l'écran, quitte à rogner les bords (idéal pour une photo)
     ajustement: "entier",

@@ -176,3 +176,61 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.05; mar
   .nav a[aria-current="page"] { text-decoration: none; color: var(--or); }
   .appel .btn { flex: 1 1 100%; }
 }
+
+/* ---------------- Animations ---------------- */
+.hero { position: relative; isolation: isolate; }
+.hero .bulles { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none; }
+.entete { transition: box-shadow .25s, background-color .25s; }
+.entete.decolle { box-shadow: 0 8px 24px rgba(0, 0, 0, .45); background: rgba(20, 14, 9, .97); }
+
+.hero h1 .ligne { display: block; overflow: hidden; padding-bottom: .06em; }
+.hero h1 .ligne > span { display: inline-block; }
+
+/* Ouverture de l'accueil : une seule séquence orchestrée */
+.anime .hero-lieu, .anime .hero-devise, .anime .hero-intro, .anime .hero-actions { animation: monter .8s cubic-bezier(.2, .7, .2, 1) both; }
+.anime .hero h1 .ligne > span { animation: lever 1s cubic-bezier(.2, .8, .2, 1) both; }
+.anime .hero-lieu { animation-delay: .05s; }
+.anime .hero h1 .ligne:nth-child(1) > span { animation-delay: .15s; }
+.anime .hero h1 .ligne:nth-child(2) > span { animation-delay: .3s; }
+.anime .hero-devise { animation-delay: .6s; }
+.anime .hero-intro { animation-delay: .75s; }
+.anime .hero-actions { animation-delay: .9s; }
+.anime .hero-image { animation: devoiler 1.3s cubic-bezier(.6, .1, .2, 1) .35s both; }
+.anime .hero-image img { animation: respirer 14s ease-in-out 1.6s infinite alternate; }
+.hero-image { overflow: hidden; }
+.hero-image .reflet { display: none; }
+.anime .hero-image .reflet { display: block; position: absolute; inset: 0; z-index: 2; pointer-events: none; background: linear-gradient(105deg, transparent 35%, rgba(255, 236, 190, .35) 50%, transparent 65%); background-size: 250% 100%; background-position: 130% 0; animation: reflet 1.6s ease-out 1.3s both; }
+
+/* Titres des pages intérieures */
+.anime .page-tete-anim h1 { animation: lever-doux .9s cubic-bezier(.2, .8, .2, 1) both; }
+.anime .page-tete-anim p { animation: monter .8s cubic-bezier(.2, .7, .2, 1) .2s both; }
+
+/* Apparitions au défilement */
+.anime [data-apparition] { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); transition-delay: calc(var(--rang, 0) * 70ms); }
+.anime [data-apparition].visible { opacity: 1; transform: none; }
+
+/* Boutons dorés : léger reflet au survol */
+.btn-or { position: relative; overflow: hidden; }
+.btn-or::after { content: ""; position: absolute; inset: 0; background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, .45) 50%, transparent 70%); transform: translateX(-120%); transition: transform .6s ease; }
+.btn-or:hover::after, .btn-or:focus-visible::after { transform: translateX(120%); }
+.carte-liste a { transition: background-color .2s, padding-left .2s; }
+.carte-liste a:hover { padding-left: 20px; }
+
+/* Motion de l'accueil */
+.motion-cadre { position: relative; aspect-ratio: 16 / 9; max-width: 1000px; border-radius: 18px; overflow: hidden; border: 1px solid var(--filet); background: #0a0705; }
+.motion-cadre canvas { width: 100%; height: 100%; display: block; }
+.motion-rejouer { position: absolute; right: 16px; bottom: 16px; background: rgba(20, 14, 9, .8); color: var(--or-clair); border: 1.5px solid var(--or); border-radius: 999px; padding: 10px 18px; font: 600 15px var(--sans); cursor: pointer; }
+.motion-rejouer:hover { background: var(--or); color: var(--nuit); }
+@media (max-width: 760px) { .motion-cadre { aspect-ratio: 4 / 5; } }
+
+@keyframes monter { from { opacity: 0; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+@keyframes lever { from { transform: translateY(105%); } to { transform: none; } }
+@keyframes lever-doux { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@keyframes devoiler { from { clip-path: inset(0 0 0 100%); opacity: .3; } to { clip-path: inset(0 0 0 0); opacity: 1; } }
+@keyframes respirer { from { transform: scale(1); } to { transform: scale(1.06); } }
+@keyframes reflet { from { background-position: 130% 0; } to { background-position: -30% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-or::after { display: none; }
+  .carte-liste a, .carte-liste a:hover { transition: none; padding-left: 12px; }
+}

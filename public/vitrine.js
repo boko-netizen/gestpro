@@ -92,4 +92,69 @@ const VITRINE = {
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') fermer(); });
 
   $('#annee').textContent = new Date().getFullYear();
+
+  /* ---------------- Animations ---------------- */
+  const reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.documentElement.classList.add(reduit ? 'mouvement-reduit' : 'anime');
+
+  // En-tête qui se détache du contenu au défilement
+  const entete = $('.entete');
+  const surDefilement = () => entete.classList.toggle('decolle', scrollY > 8);
+  addEventListener('scroll', surDefilement, { passive: true });
+  surDefilement();
+
+  // Apparitions au défilement (une seule fois par élément)
+  $$('[data-cascade]').forEach((liste) => {
+    [...liste.children].forEach((el, i) => { el.dataset.apparition = ''; el.style.setProperty('--rang', i); });
+  });
+  const aMontrer = $$('[data-apparition]');
+  if (reduit || !('IntersectionObserver' in window)) {
+    aMontrer.forEach((el) => el.classList.add('visible'));
+  } else {
+    const obs = new IntersectionObserver((entrees) => {
+      entrees.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.12 });
+    aMontrer.forEach((el) => obs.observe(el));
+  }
+
+  // Bulles de champagne derrière le titre de l'accueil
+  const toileBulles = $('.hero .bulles');
+  if (toileBulles && !reduit) {
+    const ctx = toileBulles.getContext('2d');
+    const bulles = Array.from({ length: 46 }, () => ({ x: Math.random(), y: Math.random(), v: 0.012 + Math.random() * 0.03, r: 0.8 + Math.random() * 2.4, a: 0.15 + Math.random() * 0.4, o: Math.random() * 6.28 }));
+    let visible = true, dernier = performance.now();
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; }).observe(toileBulles);
+    const dessiner = (now) => {
+      const dt = Math.min(0.05, (now - dernier) / 1000); dernier = now;
+      if (visible && !document.hidden) {
+        const dpr = Math.min(devicePixelRatio || 1, 2);
+        const w = toileBulles.clientWidth * dpr, h = toileBulles.clientHeight * dpr;
+        if (toileBulles.width !== w || toileBulles.height !== h) { toileBulles.width = w; toileBulles.height = h; }
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#f0d48a';
+        for (const b of bulles) {
+          b.y -= b.v * dt; if (b.y < -0.05) { b.y = 1.05; b.x = Math.random(); }
+          ctx.globalAlpha = b.a * (0.6 + 0.4 * Math.sin(now / 600 + b.o));
+          ctx.beginPath(); ctx.arc(b.x * w + Math.sin(now / 900 + b.o) * 6 * dpr, b.y * h, b.r * dpr, 0, 6.283); ctx.fill();
+        }
+      }
+      requestAnimationFrame(dessiner);
+    };
+    requestAnimationFrame(dessiner);
+  }
+
+  // Motion de 10 s sur l'accueil : démarre quand il devient visible
+  const toileMotion = $('#motion-accueil');
+  if (toileMotion && window.MotionBavins) {
+    const rejouer = $('.motion-rejouer');
+    const m = window.MotionBavins.creer(toileMotion, { fin: () => { rejouer.hidden = false; } });
+    let lance = false;
+    const lancer = () => { rejouer.hidden = true; m.lire(); };
+    rejouer.addEventListener('click', lancer);
+    if (reduit) { rejouer.hidden = true; }
+    else if ('IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => { if (e.isIntersecting && !lance) { lance = true; lancer(); } }, { threshold: 0.45 }).observe(toileMotion);
+    } else lancer();
+    addEventListener('resize', () => m.dessiner(m.duree));
+  }
 })();

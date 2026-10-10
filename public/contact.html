@@ -35,13 +35,13 @@
   </header>
 
   <main id="contenu">
-    <section class="page-tete">
+    <section class="page-tete page-tete-anim">
       <h1>Nous contacter</h1>
       <p>Une question, une commande, un devis ? Écrivez-nous ou passez nous voir.</p>
     </section>
     <section class="section section-suite">
       <div class="contact">
-        <dl class="coord">
+        <dl class="coord" data-cascade>
           <div>
             <dt>Téléphone</dt>
             <dd><a data-tel data-info="telephoneAffiche" href="#">01 01 92 00 57</a></dd>
@@ -64,7 +64,7 @@
           </div>
         </dl>
 
-        <form class="commande" id="form-commande" novalidate>
+        <form class="commande" id="form-commande" novalidate data-apparition>
           <h3>Préparer ma commande</h3>
           <p>Votre message s'ouvre dans WhatsApp, prêt à envoyer.</p>
           <label for="c-nom">Votre nom</label>
