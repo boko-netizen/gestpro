@@ -234,3 +234,10 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.05; mar
   .btn-or::after { display: none; }
   .carte-liste a, .carte-liste a:hover { transition: none; padding-left: 12px; }
 }
+
+/* Bouton FR / EN */
+.langue-btn { background: transparent; color: var(--or-clair); border: 1.5px solid var(--or); border-radius: 999px; min-width: 48px; height: 40px; padding: 0 12px; font: 600 14px var(--sans); letter-spacing: .04em; cursor: pointer; order: 3; }
+.langue-btn:hover { background: var(--or); color: var(--nuit); }
+.entete-int .nav { order: 2; }
+.entete-int .menu-btn { order: 4; }
+@media (max-width: 420px) { .marque { gap: 8px; } .marque img { width: 38px; height: 38px; } .marque span { font-size: 16px; white-space: nowrap; } .entete-int { gap: 10px; padding-left: 14px; padding-right: 14px; } }

@@ -21,6 +21,15 @@
     quartier: 'Maroc Anador',
     commande: 'Commandez sur WhatsApp',
   };
+  const INFOS_EN = {
+    ...INFOS,
+    sousTitre: 'Cellar • Drinks • Fine foods',
+    devise: 'Quality, every time!',
+    categories: ['Champagne', 'Wine', 'Spirits', 'Liqueurs', 'Beer', 'Sweets', 'Snacks', 'Gifts'],
+    accroche: ['Exceptional drinks', 'and so much more!'],
+    fin: 'Your cellar, your pleasure!',
+    commande: 'Order on WhatsApp',
+  };
   const OR = '#d4a646', OR_CLAIR = '#f0d48a', CREME = '#f3ead8', NUIT = '#140e09';
   const SERIF = 'Cormorant, "Cormorant Garamond", Georgia, serif';
   const SANS = 'Figtree, system-ui, sans-serif';
@@ -173,6 +182,7 @@
 
   // ---------- la scène complète à l'instant t ----------
   function scene(ctx, W, H, t, A) {
+    const I = A.infos || INFOS;
     const u = Math.min(W, H) / 1080;              // unité de base
     const portrait = H > W * 1.15;
     const cx = W / 2;
@@ -188,11 +198,11 @@
     logo(ctx, A.logo, cx, yLogo, rLogo, easeOut(pLogo) * (1 - sortieA), 0.6 + 0.4 * Math.sin(t * 3));
     const yNom = yLogo + rLogo + (portrait ? 120 : 95) * u;
     const pNom = easeOut(prog(t, 1.1, 1.9));
-    const tNom = tailleMax(ctx, INFOS.nom, (portrait ? 118 : 104) * u, W * 0.88);
-    texte(ctx, INFOS.nom, cx, yNom + (1 - pNom) * 40 * u, { taille: tNom, couleur: OR, alpha: pNom * (1 - sortieA), ombre: 18 * u });
+    const tNom = tailleMax(ctx, I.nom, (portrait ? 118 : 104) * u, W * 0.88);
+    texte(ctx, I.nom, cx, yNom + (1 - pNom) * 40 * u, { taille: tNom, couleur: OR, alpha: pNom * (1 - sortieA), ombre: 18 * u });
     filet(ctx, cx, yNom + 78 * u, 520 * u, prog(t, 1.5, 2.3) * (1 - sortieA), u);
     const pSous = easeOut(prog(t, 1.8, 2.4));
-    texte(ctx, INFOS.sousTitre.toUpperCase(), cx, yNom + 132 * u, { taille: 34 * u, police: SANS, poids: 600, couleur: CREME, alpha: pSous * (1 - sortieA), espacement: 5 * u });
+    texte(ctx, I.sousTitre.toUpperCase(), cx, yNom + 132 * u, { taille: 34 * u, police: SANS, poids: 600, couleur: CREME, alpha: pSous * (1 - sortieA), espacement: 5 * u });
 
     // --- 2. Bouteilles en travelling + catégories (3,0 → 8,2 s)
     const pB = prog(t, 3.0, 3.8);
@@ -234,7 +244,7 @@
     // catégories une par une
     const debutCat = 3.6, pasCat = 0.34;
     const yCat = portrait ? H * 0.70 : H * 0.84;
-    INFOS.categories.forEach((nom, i) => {
+    I.categories.forEach((nom, i) => {
       const d = debutCat + i * pasCat;
       const a = fenetre(t, d, d + 0.1, d + pasCat - 0.08, d + pasCat);
       if (a <= 0.001) return;
@@ -244,7 +254,7 @@
     // compteur de catégories (petits points)
     const aPoints = fenetre(t, 3.6, 3.9, 6.3, 6.6);
     if (aPoints > 0) {
-      const n = INFOS.categories.length, ecart = 26 * u;
+      const n = I.categories.length, ecart = 26 * u;
       const actif = clamp(Math.floor((t - debutCat) / pasCat), 0, n - 1);
       for (let i = 0; i < n; i++) {
         ctx.save(); ctx.globalAlpha = aPoints * (i === actif ? 1 : 0.35);
@@ -255,7 +265,7 @@
 
     // --- 3. Accroche (6,5 → 8,3 s)
     const yAcc = portrait ? H * 0.69 : H * 0.48;
-    INFOS.accroche.forEach((ligne, i) => {
+    I.accroche.forEach((ligne, i) => {
       const d = 6.5 + i * 0.35;
       const a = fenetre(t, d, d + 0.45, 7.95, 8.3);
       const tl = tailleMax(ctx, ligne, (portrait ? 108 : 96) * u, W * 0.9, SERIF, 600, 'italic');
@@ -270,21 +280,21 @@
       const yL = H * (portrait ? 0.355 : 0.24);
       const rL = (portrait ? 200 : 120) * u * (0.8 + 0.2 * easeBack(pF));
       logo(ctx, A.logo, cx, yL, rL, aF, 0.8);
-      const tFin = tailleMax(ctx, INFOS.fin, (portrait ? 112 : 100) * u, W * 0.9, SERIF, 600, 'italic');
+      const tFin = tailleMax(ctx, I.fin, (portrait ? 112 : 100) * u, W * 0.9, SERIF, 600, 'italic');
       const yFin = yL + rL + (portrait ? 120 : 80) * u;
-      texte(ctx, INFOS.fin, cx, yFin + (1 - aF) * 30 * u, { taille: tFin, poids: 600, style: 'italic', couleur: OR_CLAIR, alpha: aF, ombre: 22 * u });
+      texte(ctx, I.fin, cx, yFin + (1 - aF) * 30 * u, { taille: tFin, poids: 600, style: 'italic', couleur: OR_CLAIR, alpha: aF, ombre: 22 * u });
       filet(ctx, cx, yFin + tFin * 0.75, 560 * u, prog(t, 8.5, 9.2), u);
       const aTel = easeOut(prog(t, 8.7, 9.3));
       const yTel = yFin + tFin * 0.75 + (portrait ? 120 : 92) * u;
       const tTel = (portrait ? 92 : 78) * u;
       ctx.font = `700 ${tTel}px ${SERIF}`;
-      const lTel = ctx.measureText(INFOS.telephone).width;
+      const lTel = ctx.measureText(I.telephone).width;
       ctx.save(); ctx.globalAlpha = aTel;
       icTelephone(ctx, cx - lTel / 2 - tTel * 0.55, yTel, tTel * 0.62, OR);
       ctx.restore();
-      texte(ctx, INFOS.telephone, cx + tTel * 0.3, yTel, { taille: tTel, couleur: CREME, alpha: aTel });
+      texte(ctx, I.telephone, cx + tTel * 0.3, yTel, { taille: tTel, couleur: CREME, alpha: aTel });
       const aBas = easeOut(prog(t, 9.0, 9.5));
-      texte(ctx, `${INFOS.quartier}  •  ${INFOS.commande}`, cx, yTel + (portrait ? 96 : 76) * u, { taille: 36 * u, police: SANS, poids: 600, couleur: OR, alpha: aBas, espacement: 1.5 * u });
+      texte(ctx, `${I.quartier}  •  ${I.commande}`, cx, yTel + (portrait ? 96 : 76) * u, { taille: 36 * u, police: SANS, poids: 600, couleur: OR, alpha: aBas, espacement: 1.5 * u });
     }
 
     // cadre doré final
@@ -323,12 +333,14 @@
     }
     function dessiner(t) {
       if (!A) return;
+      dernierT = t;
       ajuster();
       scene(ctx, canvas.width, canvas.height, clamp(t, 0, DUREE), A);
     }
     const pret = Promise.all([
       chargerImage(base + 'img/logo-pb.jpg'), chargerImage(base + 'img/bouteilles.jpg'), chargerPolices(base),
-    ]).then(([l, b]) => { A = { logo: l, bouteilles: b }; dessiner(reduit && !opts.forcerAnimation ? DUREE - 0.3 : 0); });
+    ]).then(([l, b]) => { A = { logo: l, bouteilles: b, infos: opts.langue === 'en' ? INFOS_EN : INFOS }; dessiner(reduit && !opts.forcerAnimation ? DUREE - 0.3 : 0); });
+    let dernierT = 0;
 
     function boucle(now) {
       let t = (now - debut) / 1000;
@@ -349,6 +361,11 @@
         pret.then(() => { debut = performance.now(); raf = requestAnimationFrame(boucle); });
       },
       arreter() { cancelAnimationFrame(raf); },
+      // change la langue des textes du motion ('fr' ou 'en')
+      langue(l) {
+        opts.langue = l;
+        pret.then(() => { A.infos = l === 'en' ? INFOS_EN : INFOS; dessiner(dernierT); });
+      },
     };
   }
 
