@@ -36,7 +36,13 @@ const VITRINE = {
   const EN = {
     // Navigation et pied de page
     'Aller au contenu': 'Skip to content', 'Menu': 'Menu', 'Accueil': 'Home', 'Services': 'Services', 'Produits': 'Products',
-    'Contact': 'Contact', 'Commander': 'Order', 'Espace gestion': 'Staff area', 'Navigation principale': 'Main navigation', 'Pages du site': 'Site pages',
+    'Contact': 'Contact', 'Commander': 'Order', 'Boutique': 'Shop',
+    'Rechercher un produit': 'Search for a product', 'Rechercher': 'Search', 'Fermer la recherche': 'Close search',
+    'Ouvrir le panier': 'Open cart', 'Panier': 'Cart',
+    'La boutique': 'The shop', 'Vous ne trouvez pas un produit ? Demandez-le-nous sur WhatsApp.': "Can't find a product? Ask us on WhatsApp.",
+    'Tous nos rayons': 'All our aisles', 'À découvrir': 'Featured', 'Voir toute la boutique': 'See the whole shop', 'Nos rayons': 'Our aisles', 'Demander sur WhatsApp': 'Ask on WhatsApp',
+    'Choisissez vos produits, envoyez votre commande : nous vous rappelons pour confirmer la livraison ou le retrait.': 'Choose your products and send your order: we will contact you to confirm delivery or pick-up.',
+    'Retour à la boutique': 'Back to the shop', 'Espace gestion': 'Staff area', 'Navigation principale': 'Main navigation', 'Pages du site': 'Site pages',
     "L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.":
       'Alcohol abuse is dangerous for your health; please drink responsibly. No alcohol sales to minors.',
     // Accueil
@@ -106,6 +112,15 @@ const VITRINE = {
   };
   let langue = 'fr';
   let auChangementDeLangue = () => {};
+  const ecouteursLangue = [];
+  // Petite interface commune pour boutique.js (langue, traductions, WhatsApp)
+  window.Vitrine = {
+    get langue() { return langue; },
+    t: (fr, en) => (langue === 'en' ? en : fr),
+    lienWa,
+    infos: VITRINE,
+    surLangue: (fn) => ecouteursLangue.push(fn),
+  };
 
   function traduire(fr) { return langue === 'en' && EN[fr.trim()] ? fr.replace(fr.trim(), EN[fr.trim()]) : fr; }
 
@@ -114,7 +129,7 @@ const VITRINE = {
     document.documentElement.lang = l;
     // Textes
     const marche = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode: (n) => (n.parentElement && !n.parentElement.closest('script, style, [data-info], .langue-btn, .film-btn') && n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
+      acceptNode: (n) => (n.parentElement && !n.parentElement.closest('script, style, [data-info], [data-dynamique], .langue-btn, .film-btn') && n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
     });
     for (let n = marche.nextNode(); n; n = marche.nextNode()) {
       if (!originaux.has(n)) originaux.set(n, n.nodeValue);
@@ -122,7 +137,7 @@ const VITRINE = {
     }
     // Attributs (textes d'aide, descriptions d'images)
     $$('[placeholder], [aria-label], [alt], [title]').forEach((el) => {
-      if (el.closest('.langue-btn, #carte-liste')) return;
+      if (el.closest('.langue-btn, #carte-liste, [data-dynamique]')) return;
       ATTRIBUTS.forEach((at) => {
         if (!el.hasAttribute(at)) return;
         const cle = `${at}`;
@@ -145,6 +160,7 @@ const VITRINE = {
       b.setAttribute('aria-label', l === 'en' ? 'Passer en français' : 'Switch to English');
     }
     remplirCarte();
+    ecouteursLangue.forEach((fn) => fn(l));
     auChangementDeLangue(l);
   }
 

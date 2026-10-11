@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Produit – Le Paradis des Bavins</title>
+  <meta name="description" content="Vente sur place, commande sur WhatsApp, coffrets cadeaux, fêtes et événements.">
+  <meta property="og:title" content="Nos services – Le Paradis des Bavins">
+  <meta property="og:description" content="Vente sur place, commande sur WhatsApp, coffrets cadeaux, fêtes et événements.">
+  <meta property="og:image" content="img/cave.jpg">
+  <meta name="theme-color" content="#140e09">
+  <link rel="icon" href="img/logo-pb.jpg">
+  <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="vitrine.css">
+  <script src="vitrine.js" defer></script>
+  <script src="boutique.js" defer></script>
+</head>
+<body class="page-produit">
+  <a class="aller-contenu" href="#contenu">Aller au contenu</a>
+
+  <header class="entete">
+    <div class="entete-int">
+      <a class="marque" href="./">
+        <img src="img/logo-pb.jpg" alt="" width="44" height="44">
+        <span>Le Paradis des Bavins</span>
+      </a>
+      <div class="outils-entete">
+        <button class="outil-btn recherche-btn" type="button" aria-expanded="false" aria-controls="recherche-entete" aria-label="Rechercher un produit">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </button>
+        <button class="outil-btn panier-btn" type="button" aria-label="Ouvrir le panier" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+          <span class="panier-nb" hidden>0</span>
+        </button>
+        <button class="langue-btn" type="button" lang="en" aria-label="Switch to English">EN</button>
+      </div>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
+      <nav id="nav" class="nav" aria-label="Navigation principale">
+        <a href="./">Accueil</a>
+        <a href="services">Services</a>
+        <a href="produits" aria-current="page">Boutique</a>
+        <a href="contact">Contact</a>
+      </nav>
+    </div>
+    <form class="recherche-entete" id="recherche-entete" action="produits" role="search" hidden>
+      <label class="visuellement-cache" for="q-entete">Rechercher un produit</label>
+      <input id="q-entete" name="q" type="search" placeholder="Rechercher un produit" autocomplete="off" enterkeyhint="search">
+      <button class="btn btn-or" type="submit">Rechercher</button>
+      <button class="outil-btn fermer-recherche" type="button" aria-label="Fermer la recherche"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </form>
+  </header>
+
+  <main id="contenu">
+    <section class="section fiche" id="fiche" data-dynamique aria-live="polite">
+      <p class="vide-boutique">Chargement…</p>
+    </section>
+    <section class="section similaires" id="similaires" data-dynamique hidden>
+      <h2 class="titre-sobre"></h2>
+      <div class="grille-produits" id="grille-similaires"></div>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <img src="img/logo-pb.jpg" alt="" width="56" height="56">
+    <p class="pied-nom">Le Paradis des Bavins</p>
+    <nav class="pied-nav" aria-label="Pages du site">
+      <a href="./">Accueil</a>
+      <a href="services">Services</a>
+      <a href="produits" aria-current="page">Boutique</a>
+      <a href="contact">Contact</a>
+    </nav>
+    <p class="pied-sante">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.</p>
+    <p class="pied-liens"><span>© <span id="annee">2026</span> Le Paradis des Bavins</span><a href="gestion">Espace gestion</a></p>
+  </footer>
+</body>
+</html>

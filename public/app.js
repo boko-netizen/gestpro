@@ -102,17 +102,20 @@
     produits: {
       titre: 'Stock', article: 'un produit', ordre: [['designation', true]],
       champs: [
+        { k: 'photo_url', l: 'Photo', type: 'photo' },
         { k: 'reference', l: 'Référence' },
         { k: 'designation', l: 'Désignation', req: true },
-        { k: 'categorie', l: 'Catégorie' },
+        { k: 'categorie', l: 'Catégorie', type: 'liste', opts: ['Champagnes', 'Vins', 'Spiritueux', 'Liqueurs', 'Bières', 'Sodas & jus', 'Énergie & sport', 'Épicerie fine', 'Confiseries', 'Snacks', 'Cadeaux'] },
         { k: 'quantite', l: 'Quantité en stock', type: 'number', min: 0, defaut: () => 0, num: true },
         { k: 'prix_achat', l: "Prix d'achat", type: 'money', defaut: () => 0 },
         { k: 'prix_vente', l: 'Prix de vente', type: 'money', defaut: () => 0 },
         { k: 'seuil_alerte', l: "Seuil d'alerte", type: 'number', min: 0, defaut: () => 5, num: true },
         { k: 'fournisseur_id', l: 'Fournisseur', type: 'ref', ref: 'fournisseurs' },
+        { k: 'visible_site', l: 'Sur le site', type: 'bool', defaut: () => false },
+        { k: 'description', l: 'Description pour le site', type: 'textarea', liste: false, max: 1000 },
       ],
       classeLigne: (r) => (r.quantite <= r.seuil_alerte ? 'alerte' : ''),
-      aide: 'Les lignes en rouge ont atteint le seuil d’alerte.',
+      aide: 'Les lignes en rouge ont atteint le seuil d’alerte. « Sur le site » : le produit apparaît dans la boutique en ligne (nom, photo, prix de vente et « disponible » ou « rupture » ; jamais le prix d’achat ni la quantité exacte).',
     },
     fournisseurs: {
       titre: 'Fournisseurs', article: 'un fournisseur', ordre: [['nom', true]],
@@ -281,12 +284,27 @@
    * ------------------------------------------------------------------ */
   function construireMenu() {
     const items = Object.entries(ENTITES).map(([k, e]) => [k, e.titre]);
+    // Commandes reçues depuis la boutique en ligne, juste après les ventes
+    items.splice(items.findIndex(([k]) => k === 'ventes') + 1, 0, ['commandes_clients', 'Commandes du site']);
     // Le tableau de bord est réservé à l'administrateur
     if (moi.role === 'admin') items.unshift(['tableau', 'Tableau de bord']);
     let html = items.map(([k, l]) => `<button data-vue="${k}">${esc(l)}</button>`).join('');
     if (moi.role === 'admin') html += '<div class="sep"></div><button data-vue="utilisateurs">Utilisateurs</button>';
     $('#menu').innerHTML = html;
     $$('#menu button').forEach((b) => (b.onclick = () => { $('.barre').classList.remove('ouverte'); afficher(b.dataset.vue); }));
+    majPastilleCommandes();
+  }
+
+  // Pastille avec le nombre de nouvelles commandes du site
+  let dernierNbNouvelles = null;
+  async function majPastilleCommandes() {
+    const { count, error } = await sb.from('commandes_clients').select('id', { count: 'exact', head: true }).eq('statut', 'nouvelle');
+    if (error) return;
+    const b = $('#menu button[data-vue="commandes_clients"]');
+    if (!b) return;
+    b.innerHTML = `Commandes du site${count ? ` <span class="pastille" aria-label="${count} nouvelle(s)">${count}</span>` : ''}`;
+    if (dernierNbNouvelles !== null && count > dernierNbNouvelles) toast(`Nouvelle commande reçue sur le site (${count} à traiter)`);
+    dernierNbNouvelles = count;
   }
 
   const vueAccueil = () => (moi.role === 'admin' ? 'tableau' : 'ventes');
@@ -298,6 +316,7 @@
     try {
       if (vue === 'tableau') await vueTableau(silencieux);
       else if (vue === 'utilisateurs') await vueUtilisateurs();
+      else if (vue === 'commandes_clients') await vueCommandesClients(silencieux);
       else await vueEntite(vue, silencieux);
     } catch (e) {
       if (!silencieux) {
@@ -369,12 +388,18 @@
       return r['r_' + c.k]?.[COLONNE_REF[c.ref]] ?? `#${v}`;
     }
     if (c.type === 'money') return fcfa(v);
+    if (c.type === 'bool') return v ? 'Oui' : 'Non';
+    if (c.type === 'photo') return v ? 'Oui' : '';
     if (c.type === 'date') return dateFr(v);
     if (c.num) return nf.format(v ?? 0);
     return v ?? '';
   }
 
   function celluleHTML(c, r) {
+    if (c.type === 'photo') {
+      return `<td class="vignette">${r[c.k] ? `<img src="${esc(r[c.k])}" alt="" loading="lazy" width="44" height="44">` : '<span class="sans-photo" aria-label="Pas de photo">—</span>'}</td>`;
+    }
+    if (c.type === 'bool') return `<td>${r[c.k] ? '<span class="badge vert">En ligne</span>' : '<span class="badge">Non</span>'}</td>`;
     const brut = valeurAffichee(c, r);
     if (c.badge && r[c.k]) return `<td><span class="badge ${COULEURS_STATUT[r[c.k]] || ''}">${esc(brut)}</span></td>`;
     const num = c.type === 'money' || c.num;
@@ -467,7 +492,20 @@
     let input;
     switch (c.type) {
       case 'textarea':
-        input = `<textarea id="${id}" name="${c.k}" ${req}>${esc(val)}</textarea>`; break;
+        input = `<textarea id="${id}" name="${c.k}" ${c.max ? `maxlength="${c.max}"` : ''} ${req}>${esc(val)}</textarea>`; break;
+      case 'bool':
+        input = `<select id="${id}" name="${c.k}"><option value="false" ${val ? '' : 'selected'}>Non : pas affiché sur le site</option><option value="true" ${val ? 'selected' : ''}>Oui : affiché dans la boutique en ligne</option></select>`; break;
+      case 'photo':
+        input = `<div class="champ-photo">
+            <img class="apercu-photo" id="apercu-${c.k}" alt="Aperçu de la photo" ${val ? `src="${esc(val)}"` : 'hidden'}>
+            <div class="champ-photo-actions">
+              <input type="hidden" name="${c.k}" value="${esc(val)}">
+              <input type="file" id="${id}" accept="image/jpeg,image/png,image/webp" class="fichier-photo">
+              <button type="button" class="btn petit" id="retirer-${c.k}" ${val ? '' : 'hidden'}>Retirer la photo</button>
+              <p class="note">JPEG, PNG ou WebP. La photo est réduite automatiquement avant l’envoi.</p>
+            </div>
+          </div>`;
+        break;
       case 'select':
         input = `<select id="${id}" name="${c.k}" ${req}>${c.opts.map((o) => `<option ${o === val ? 'selected' : ''}>${esc(o)}</option>`).join('')}</select>`; break;
       case 'liste':
@@ -491,7 +529,7 @@
       default:
         input = `<input id="${id}" name="${c.k}" type="${c.type || 'text'}" value="${esc(val)}" ${req}>`;
     }
-    return `<div class="${c.large || c.type === 'textarea' ? 'large' : ''}"><label for="${id}">${etiquette}</label>${input}</div>`;
+    return `<div class="${c.large || c.type === 'textarea' || c.type === 'photo' ? 'large' : ''}"><label for="${id}">${etiquette}</label>${input}</div>`;
   }
 
   async function formulaire(cle, ligne) {
@@ -509,6 +547,7 @@
       titre: `${ligne ? 'Modifier' : 'Ajouter'} ${ent.article}`,
       corps: champs.map((c) => champHTML(c, valeurInitiale(c), options[c.ref] || [])).join(''),
       apres: (form) => {
+        champs.filter((c) => c.type === 'photo').forEach((c) => brancherPhoto(form, c));
         for (const [k, fn] of Object.entries(ent.surChange || {})) {
           const champ = champs.find((c) => c.k === k);
           const liste = options[champ.ref] || [];
@@ -523,6 +562,12 @@
         const donnees = {};
         let aCreer = null;   // produit tapé qui n'existe pas encore (commande fournisseur)
         for (const c of champs) {
+          if (c.type === 'photo') {
+            const fichier = form.querySelector(`#f_${c.k}`).__photo;
+            donnees[c.k] = fichier ? await envoyerPhoto(fichier) : (form[c.k].value || null);
+            continue;
+          }
+          if (c.type === 'bool') { donnees[c.k] = form[c.k].value === 'true'; continue; }
           const v = form[c.k].value.trim();
           if (c.saisie) {
             if (!v) { if (c.req) throw new Error(`Indiquez le ${c.l.toLowerCase()}.`); donnees[c.k] = null; continue; }
@@ -560,6 +605,114 @@
         toast(aCreer ? `« ${aCreer.designation} » ajouté au stock, ${ent.article.replace(/^une? /, '')} enregistrée` : (ligne ? 'Modifications enregistrées' : 'Ajouté'));
         afficher(cle, true);
       },
+    });
+  }
+
+  /* ------------------------------------------------------------------
+   * Commandes passées depuis la boutique en ligne
+   * ------------------------------------------------------------------ */
+  const STATUTS_SITE = { 'nouvelle': 'orange', 'confirmée': 'accent', 'livrée': 'vert', 'annulée': 'rouge' };
+  const lienWhatsApp = (tel, texte) => {
+    let n = String(tel).replace(/\D/g, '');
+    if (n.length === 10 && n.startsWith('0')) n = '225' + n;   // numéro ivoirien local
+    return `https://wa.me/${n}?text=${encodeURIComponent(texte)}`;
+  };
+  let filtreStatut = 'à traiter';
+
+  async function vueCommandesClients(silencieux) {
+    $('#titre-vue').textContent = 'Commandes du site';
+    if (!silencieux) {
+      $('#actions-vue').innerHTML = `<label class="filtre-statut">Afficher
+        <select id="filtre-statut">
+          ${['à traiter', 'toutes', 'nouvelle', 'confirmée', 'livrée', 'annulée'].map((v) => `<option ${v === filtreStatut ? 'selected' : ''}>${v}</option>`).join('')}
+        </select></label>`;
+      $('#filtre-statut').onchange = (e) => { filtreStatut = e.target.value; afficher('commandes_clients', true); };
+      $('#vue').innerHTML = `<p class="note">Commandes envoyées par les visiteurs depuis la boutique en ligne. Les prix ont été recalculés par la base. Le stock ne baisse qu’au clic sur « Enregistrer en ventes », après votre confirmation avec le client.</p><br><div id="liste"><p class="vide">Chargement…</p></div>`;
+    }
+    let q = sb.from('commandes_clients').select('*').order('created_at', { ascending: false }).limit(300);
+    if (filtreStatut === 'à traiter') q = q.in('statut', ['nouvelle', 'confirmée']);
+    else if (filtreStatut !== 'toutes') q = q.eq('statut', filtreStatut);
+    const { data, error } = await q;
+    if (error) throw error;
+    if (vueActive !== 'commandes_clients') return;
+    majPastilleCommandes();
+    const zone = $('#liste');
+    if (!data.length) {
+      zone.innerHTML = `<div class="table-wrap"><p class="vide">${filtreStatut === 'à traiter' ? 'Aucune commande à traiter pour le moment.' : 'Aucune commande.'}</p></div>`;
+      return;
+    }
+    zone.innerHTML = `<div class="table-wrap"><table>
+      <thead><tr><th>N°</th><th>Reçue le</th><th>Client</th><th>Articles</th><th class="num">Total</th><th>Statut</th><th></th></tr></thead>
+      <tbody>${data.map((c) => `
+        <tr>
+          <td><strong>${c.id}</strong></td>
+          <td>${dateHeureFr(c.created_at)}</td>
+          <td class="texte"><strong>${esc(c.nom)}</strong><br><a href="${esc(lienWhatsApp(c.telephone, `Bonjour ${c.nom}, nous avons bien reçu votre commande n°${c.id} au Paradis des Bavins.`))}" target="_blank" rel="noopener">${esc(c.telephone)}</a>${c.note ? `<br><span class="note">« ${esc(c.note)} »</span>` : ''}</td>
+          <td class="texte">${c.lignes.map((l) => `${nf.format(l.quantite)} × ${esc(l.designation)} <span class="note">(${fcfa(l.prix_unitaire)})</span>`).join('<br>')}</td>
+          <td class="num"><strong>${fcfa(c.total)}</strong></td>
+          <td>${peutEcrire()
+            ? `<select data-statut="${c.id}" aria-label="Statut de la commande ${c.id}">${Object.keys(STATUTS_SITE).map((st) => `<option ${st === c.statut ? 'selected' : ''}>${st}</option>`).join('')}</select>`
+            : `<span class="badge ${STATUTS_SITE[c.statut]}">${esc(c.statut)}</span>`}</td>
+          <td class="acts">${c.ventes_creees
+            ? '<span class="badge vert">Ventes enregistrées</span>'
+            : (peutEcrire() && c.statut !== 'annulée' ? `<button class="btn petit" data-confirmer="${c.id}">Enregistrer en ventes</button>` : '')}</td>
+        </tr>`).join('')}
+      </tbody></table></div>
+      <div class="compteur">${nf.format(data.length)} commande(s) · Total ${fcfa(data.reduce((t, c) => t + Number(c.total), 0))}</div>`;
+    $$('[data-statut]', zone).forEach((sel) => (sel.onchange = async () => {
+      const { error: e } = await sb.from('commandes_clients').update({ statut: sel.value }).eq('id', sel.dataset.statut);
+      if (e) toast(messageErreur(e), true); else toast(`Commande n°${sel.dataset.statut} : ${sel.value}`);
+      afficher('commandes_clients', true);
+    }));
+    $$('[data-confirmer]', zone).forEach((b) => (b.onclick = async () => {
+      if (!confirm(`Enregistrer la commande n°${b.dataset.confirmer} en ventes ? Le stock des produits baissera.`)) return;
+      b.disabled = true;
+      const { error: e } = await sb.rpc('confirmer_commande_client', { p_id: Number(b.dataset.confirmer) });
+      if (e) { toast(messageErreur(e), true); b.disabled = false; return; }
+      toast(`Commande n°${b.dataset.confirmer} enregistrée en ventes`);
+      afficher('commandes_clients', true);
+    }));
+  }
+
+  /* ------------------------------------------------------------------
+   * Photos des produits (Supabase Storage, dossier « produits »)
+   * ------------------------------------------------------------------ */
+  // Réduit la photo (1200 px maximum, JPEG) avant l'envoi
+  async function preparerPhoto(fichier) {
+    if (!/^image\/(jpeg|png|webp)$/.test(fichier.type)) throw new Error('Choisissez une image JPEG, PNG ou WebP.');
+    if (fichier.size > 15 * 1024 * 1024) throw new Error('Cette image est trop lourde (15 Mo au maximum).');
+    const bitmap = await createImageBitmap(fichier);
+    const k = Math.min(1, 1200 / Math.max(bitmap.width, bitmap.height));
+    const toile = document.createElement('canvas');
+    toile.width = Math.round(bitmap.width * k); toile.height = Math.round(bitmap.height * k);
+    const ctx = toile.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, toile.width, toile.height);   // fond blanc pour les PNG transparents
+    ctx.drawImage(bitmap, 0, 0, toile.width, toile.height);
+    const blob = await new Promise((ok) => toile.toBlob(ok, 'image/jpeg', 0.85));
+    return { blob, apercu: toile.toDataURL('image/jpeg', 0.7) };
+  }
+
+  async function envoyerPhoto(photo) {
+    const nom = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
+    const { error } = await sb.storage.from('produits').upload(nom, photo.blob, { contentType: 'image/jpeg', upsert: false, cacheControl: '31536000' });
+    if (error) throw new Error(`Envoi de la photo impossible : ${error.message}`);
+    return sb.storage.from('produits').getPublicUrl(nom).data.publicUrl;
+  }
+
+  function brancherPhoto(form, c) {
+    const fichier = form.querySelector(`#f_${c.k}`), apercu = form.querySelector(`#apercu-${c.k}`), retirer = form.querySelector(`#retirer-${c.k}`);
+    fichier.addEventListener('change', async () => {
+      $('#dialogue-erreur').textContent = '';
+      const f = fichier.files[0];
+      if (!f) return;
+      try {
+        fichier.__photo = await preparerPhoto(f);
+        apercu.src = fichier.__photo.apercu; apercu.hidden = false; retirer.hidden = false;
+      } catch (e) { fichier.value = ''; fichier.__photo = null; $('#dialogue-erreur').textContent = messageErreur(e); }
+    });
+    retirer.addEventListener('click', () => {
+      fichier.value = ''; fichier.__photo = null; form[c.k].value = '';
+      apercu.hidden = true; apercu.removeAttribute('src'); retirer.hidden = true;
     });
   }
 

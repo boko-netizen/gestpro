@@ -13,6 +13,7 @@
   <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="vitrine.css">
   <script src="vitrine.js" defer></script>
+  <script src="boutique.js" defer></script>
 </head>
 <body class="page-produits">
   <a class="aller-contenu" href="#contenu">Aller au contenu</a>
@@ -23,29 +24,66 @@
         <img src="img/logo-pb.jpg" alt="" width="44" height="44">
         <span>Le Paradis des Bavins</span>
       </a>
-      <button class="langue-btn" type="button" lang="en" aria-label="Switch to English">EN</button>
+      <div class="outils-entete">
+        <button class="outil-btn recherche-btn" type="button" aria-expanded="false" aria-controls="recherche-entete" aria-label="Rechercher un produit">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </button>
+        <button class="outil-btn panier-btn" type="button" aria-label="Ouvrir le panier" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+          <span class="panier-nb" hidden>0</span>
+        </button>
+        <button class="langue-btn" type="button" lang="en" aria-label="Switch to English">EN</button>
+      </div>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
       <nav id="nav" class="nav" aria-label="Navigation principale">
         <a href="./">Accueil</a>
         <a href="services">Services</a>
-        <a href="produits" aria-current="page">Produits</a>
+        <a href="produits" aria-current="page">Boutique</a>
         <a href="contact">Contact</a>
-        <a class="btn btn-or nav-cta" data-wa="Bonjour, je voudrais passer une commande." href="contact">Commander</a>
       </nav>
     </div>
+    <form class="recherche-entete" id="recherche-entete" action="produits" role="search" hidden>
+      <label class="visuellement-cache" for="q-entete">Rechercher un produit</label>
+      <input id="q-entete" name="q" type="search" placeholder="Rechercher un produit" autocomplete="off" enterkeyhint="search">
+      <button class="btn btn-or" type="submit">Rechercher</button>
+      <button class="outil-btn fermer-recherche" type="button" aria-label="Fermer la recherche"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </form>
   </header>
 
   <main id="contenu">
     <section class="page-tete page-tete-anim">
-      <h1>La carte</h1>
-      <p>Touchez une ligne pour nous demander les prix et la disponibilité sur WhatsApp.</p>
+      <h1>La boutique</h1>
+      <p>Choisissez vos produits, envoyez votre commande : nous vous rappelons pour confirmer la livraison ou le retrait.</p>
     </section>
-    <section class="section section-suite">
+
+    <section class="section section-suite boutique" id="boutique" data-dynamique aria-label="Catalogue">
+      <div class="outils-boutique">
+        <div class="champ-recherche">
+          <label class="visuellement-cache" for="q">Rechercher un produit</label>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+          <input id="q" type="search" autocomplete="off" enterkeyhint="search">
+        </div>
+        <label class="choix"><span class="lib-tri"></span>
+          <select id="tri"></select>
+        </label>
+        <label class="case"><input type="checkbox" id="dispo"> <span class="lib-dispo"></span></label>
+      </div>
+      <div class="filtres-cat" id="filtres-cat" role="group"></div>
+      <div class="resume-resultats">
+        <p id="nb-resultats" aria-live="polite"></p>
+        <button class="btn-lien" type="button" id="reinitialiser" hidden></button>
+      </div>
+      <div class="grille-produits" id="grille"></div>
+    </section>
+
+    <section class="section">
+      <h2 class="titre-sobre">Tous nos rayons</h2>
+      <p class="intro-section">Vous ne trouvez pas un produit ? Demandez-le-nous sur WhatsApp.</p>
       <div class="carte">
         <ul class="carte-liste" id="carte-liste" data-cascade></ul>
       </div>
       <figure class="affiche" data-apparition>
-        <img src="img/cave.jpg" width="1280" height="853" alt="Affiche du Paradis des Bavins : champagnes, vins, spiritueux, liqueurs, bières, épicerie fine, confiseries, snacks et cadeaux">
+        <img src="img/cave.jpg" width="1280" height="853" loading="lazy" alt="Affiche du Paradis des Bavins : champagnes, vins, spiritueux, liqueurs, bières, épicerie fine, confiseries, snacks et cadeaux">
       </figure>
     </section>
   </main>
@@ -56,7 +94,7 @@
     <nav class="pied-nav" aria-label="Pages du site">
       <a href="./">Accueil</a>
       <a href="services">Services</a>
-      <a href="produits">Produits</a>
+      <a href="produits">Boutique</a>
       <a href="contact">Contact</a>
     </nav>
     <p class="pied-sante">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.</p>

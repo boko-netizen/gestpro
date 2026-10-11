@@ -13,6 +13,7 @@
   <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="vitrine.css">
   <script src="vitrine.js" defer></script>
+  <script src="boutique.js" defer></script>
 </head>
 <body class="page-index">
   <a class="aller-contenu" href="#contenu">Aller au contenu</a>
@@ -23,16 +24,30 @@
         <img src="img/logo-pb.jpg" alt="" width="44" height="44">
         <span>Le Paradis des Bavins</span>
       </a>
-      <button class="langue-btn" type="button" lang="en" aria-label="Switch to English">EN</button>
+      <div class="outils-entete">
+        <button class="outil-btn recherche-btn" type="button" aria-expanded="false" aria-controls="recherche-entete" aria-label="Rechercher un produit">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+        </button>
+        <button class="outil-btn panier-btn" type="button" aria-label="Ouvrir le panier" aria-haspopup="dialog">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+          <span class="panier-nb" hidden>0</span>
+        </button>
+        <button class="langue-btn" type="button" lang="en" aria-label="Switch to English">EN</button>
+      </div>
       <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
       <nav id="nav" class="nav" aria-label="Navigation principale">
         <a href="./" aria-current="page">Accueil</a>
         <a href="services">Services</a>
-        <a href="produits">Produits</a>
+        <a href="produits">Boutique</a>
         <a href="contact">Contact</a>
-        <a class="btn btn-or nav-cta" data-wa="Bonjour, je voudrais passer une commande." href="contact">Commander</a>
       </nav>
     </div>
+    <form class="recherche-entete" id="recherche-entete" action="produits" role="search" hidden>
+      <label class="visuellement-cache" for="q-entete">Rechercher un produit</label>
+      <input id="q-entete" name="q" type="search" placeholder="Rechercher un produit" autocomplete="off" enterkeyhint="search">
+      <button class="btn btn-or" type="submit">Rechercher</button>
+      <button class="outil-btn fermer-recherche" type="button" aria-label="Fermer la recherche"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </form>
   </header>
 
   <main id="contenu">
@@ -66,6 +81,18 @@
       </div>
     </section>
 
+    <section class="section section-vedettes" id="vedettes" hidden>
+      <h2 class="titre-sobre">À découvrir</h2>
+      <p class="intro-section"></p>
+      <div class="grille-produits" id="grille-vedettes" data-dynamique></div>
+      <a class="btn btn-ligne lien-boutique" href="produits">Voir toute la boutique</a>
+    </section>
+
+    <section class="section section-rayons" id="rayons" hidden>
+      <h2 class="titre-sobre">Nos rayons</h2>
+      <div class="puces" data-dynamique></div>
+    </section>
+
     <section class="section">
       <h2 class="titre-sobre" data-apparition>Que cherchez-vous ?</h2>
       <ul class="raccourcis" data-cascade>
@@ -82,7 +109,7 @@
     <nav class="pied-nav" aria-label="Pages du site">
       <a href="./">Accueil</a>
       <a href="services">Services</a>
-      <a href="produits">Produits</a>
+      <a href="produits">Boutique</a>
       <a href="contact">Contact</a>
     </nav>
     <p class="pied-sante">L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Vente d'alcool interdite aux mineurs.</p>
