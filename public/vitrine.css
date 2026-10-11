@@ -241,3 +241,12 @@ h1, h2, h3 { font-family: var(--serif); font-weight: 700; line-height: 1.05; mar
 .entete-int .nav { order: 2; }
 .entete-int .menu-btn { order: 4; }
 @media (max-width: 420px) { .marque { gap: 8px; } .marque img { width: 38px; height: 38px; } .marque span { font-size: 16px; white-space: nowrap; } .entete-int { gap: 10px; padding-left: 14px; padding-right: 14px; } }
+
+/* Film de la cave */
+.film-cadre { position: relative; max-width: 1000px; border-radius: 18px; overflow: hidden; border: 1px solid var(--filet); background: #000; box-shadow: 0 0 60px rgba(212, 166, 70, .18); }
+.film-cadre video { display: block; width: 100%; height: auto; aspect-ratio: 16 / 9; background: #000; }
+.film-commandes { position: absolute; right: 14px; bottom: 14px; display: flex; gap: 8px; }
+.film-btn { background: rgba(20, 14, 9, .82); color: var(--or-clair); border: 1.5px solid var(--or); border-radius: 999px; padding: 9px 16px; font: 600 14px var(--sans); cursor: pointer; }
+.film-btn:hover { background: var(--or); color: var(--nuit); }
+.film-btn[aria-pressed="true"] { background: var(--or); color: var(--nuit); }
+@media (max-width: 760px) { .film-commandes { right: 8px; bottom: 8px; } .film-btn { padding: 7px 12px; font-size: 13px; } }

@@ -12,7 +12,6 @@
   <link rel="icon" href="img/logo-pb.jpg">
   <link rel="preload" href="fonts/cormorant-garamond-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="vitrine.css">
-  <script src="motion.js" defer></script>
   <script src="vitrine.js" defer></script>
 </head>
 <body class="page-index">
@@ -54,11 +53,16 @@
       </figure>
     </section>
 
-    <section class="section section-motion" data-apparition>
-      <h2 class="titre-sobre">La cave en 10 secondes</h2>
-      <div class="motion-cadre">
-        <canvas id="motion-accueil" role="img" aria-label="Animation : le logo du Paradis des Bavins, nos champagnes, vins, spiritueux, bières, confiseries et snacks, puis notre numéro 01 01 92 00 57 à Maroc Anador."></canvas>
-        <button class="motion-rejouer" type="button" hidden>Revoir l'animation</button>
+    <section class="section section-film" data-apparition>
+      <h2 class="titre-sobre">Le film de la cave</h2>
+      <div class="film-cadre">
+        <video id="film" playsinline muted preload="none" poster="film-affiche.jpg" aria-label="Film de présentation du Paradis des Bavins : feux d'artifice, nos spiritueux, vins, liqueurs, bières, sodas et boissons énergisantes.">
+          <source src="film-fr.mp4" type="video/mp4">
+        </video>
+        <div class="film-commandes">
+          <button class="film-btn" type="button" id="film-son" aria-pressed="false">Activer le son</button>
+          <button class="film-btn" type="button" id="film-lecture">Pause</button>
+        </div>
       </div>
     </section>
 

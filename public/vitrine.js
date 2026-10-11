@@ -46,6 +46,9 @@ const VITRINE = {
       'Champagne, wine, spirits, beer, sweets and snacks: visit the shop or send us your list and we will get your order ready.',
     'Commander sur WhatsApp': 'Order on WhatsApp', 'Appeler la cave': 'Call the shop',
     'La cave en 10 secondes': 'The shop in 10 seconds', "Revoir l'animation": 'Watch again',
+    'Le film de la cave': 'Our shop film',
+    "Film de présentation du Paradis des Bavins : feux d'artifice, nos spiritueux, vins, liqueurs, bières, sodas et boissons énergisantes.":
+      'Le Paradis des Bavins promo film: fireworks, our spirits, wine, liqueurs, beer, sodas and energy drinks.',
     'Que cherchez-vous ?': 'What are you looking for?',
     'La carte': 'Our range', 'Nos services': 'Our services', 'Nous trouver': 'Find us',
     'Champagnes, vins, spiritueux, bières, confiseries, snacks et cadeaux.': 'Champagne, wine, spirits, beer, sweets, snacks and gifts.',
@@ -111,7 +114,7 @@ const VITRINE = {
     document.documentElement.lang = l;
     // Textes
     const marche = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
-      acceptNode: (n) => (n.parentElement && !n.parentElement.closest('script, style, [data-info], .langue-btn') && n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
+      acceptNode: (n) => (n.parentElement && !n.parentElement.closest('script, style, [data-info], .langue-btn, .film-btn') && n.nodeValue.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT),
     });
     for (let n = marche.nextNode(); n; n = marche.nextNode()) {
       if (!originaux.has(n)) originaux.set(n, n.nodeValue);
@@ -282,19 +285,37 @@ const VITRINE = {
     requestAnimationFrame(dessiner);
   }
 
-  // Motion de 10 s sur l'accueil : démarre quand il devient visible
-  const toileMotion = $('#motion-accueil');
-  if (toileMotion && window.MotionBavins) {
-    const rejouer = $('.motion-rejouer');
-    const m = window.MotionBavins.creer(toileMotion, { langue, fin: () => { rejouer.hidden = false; } });
-    auChangementDeLangue = (l) => m.langue(l);
-    let lance = false;
-    const lancer = () => { rejouer.hidden = true; m.lire(); };
-    rejouer.addEventListener('click', lancer);
-    if (reduit) { rejouer.hidden = true; }
-    else if ('IntersectionObserver' in window) {
-      new IntersectionObserver(([e]) => { if (e.isIntersecting && !lance) { lance = true; lancer(); } }, { threshold: 0.45 }).observe(toileMotion);
-    } else lancer();
-    addEventListener('resize', () => m.dessiner(m.duree));
+  // Film de la cave sur l'accueil : démarre sans le son quand il devient visible
+  const film = $('#film');
+  if (film) {
+    const btnSon = $('#film-son'), btnLecture = $('#film-lecture');
+    const libelle = (fr, en) => (langue === 'en' ? en : fr);
+    const majBoutons = () => {
+      btnSon.textContent = film.muted ? libelle('Activer le son', 'Turn sound on') : libelle('Couper le son', 'Mute');
+      btnSon.setAttribute('aria-pressed', String(!film.muted));
+      btnLecture.textContent = film.paused ? libelle('Lecture', 'Play') : libelle('Pause', 'Pause');
+    };
+    const choisirSource = (l) => {
+      const src = `film-${l === 'en' ? 'en' : 'fr'}.mp4`;
+      const source = film.querySelector('source');
+      if (source.getAttribute('src') === src) return;
+      const enLecture = !film.paused;
+      source.setAttribute('src', src);
+      film.load();
+      if (enLecture) film.play().catch(() => {});
+    };
+    choisirSource(langue);
+    btnSon.addEventListener('click', () => { film.muted = !film.muted; if (!film.muted && film.paused) film.play().catch(() => {}); majBoutons(); });
+    btnLecture.addEventListener('click', () => { if (film.paused) film.play().catch(() => {}); else film.pause(); });
+    film.addEventListener('play', majBoutons); film.addEventListener('pause', majBoutons); film.addEventListener('volumechange', majBoutons);
+    film.addEventListener('ended', () => { film.currentTime = 0; film.play().catch(() => {}); });
+    if (!reduit && 'IntersectionObserver' in window) {
+      new IntersectionObserver(([e]) => {
+        if (e.isIntersecting) { film.play().catch(() => {}); }
+        else if (!film.paused) film.pause();
+      }, { threshold: 0.4 }).observe(film);
+    }
+    auChangementDeLangue = (l) => { choisirSource(l); majBoutons(); };
+    majBoutons();
   }
 })();
